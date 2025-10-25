@@ -88,7 +88,14 @@ module.exports.editPatch = async (req, res) => {
 
     const totalRecord = await Tour.countDocuments({});
 
-    if (req.file) req.body.avatar = req.file.path;
+    if (req.files && req.files.avatar && req.files.avatar.length > 0)
+      req.body.avatar = req.files.avatar[0].path;
+    else {
+      delete req.body.avatar;
+    }
+
+    if (req.files && req.files.images && req.files.images.length > 0)
+      req.body.images = req.files.images.map((item) => item.path);
     else {
       delete req.body.avatar;
     }
@@ -324,7 +331,17 @@ module.exports.createPost = async (req, res) => {
   }
   const totalRecord = await Tour.countDocuments({});
 
-  req.body.avatar = req.file ? req.file.path : "";
+  if (req.files && req.files.avatar && req.files.avatar.length > 0)
+    req.body.avatar = req.files.avatar[0].path;
+  else {
+    req.body.avatar = "";
+  }
+
+  if (req.files && req.files.images && req.files.images.length > 0)
+    req.body.images = req.files.images.map((item) => item.path);
+  else {
+    req.body.images = "";
+  }
 
   req.body.position = req.body.position
     ? parseInt(req.body.position)

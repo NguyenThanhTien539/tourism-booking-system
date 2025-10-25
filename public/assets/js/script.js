@@ -486,3 +486,112 @@ if (formSearch) {
   });
 }
 // End Form Search
+
+const detailedTourBox = document.querySelector(".box-tour-detail ");
+if (detailedTourBox) {
+  const button = detailedTourBox.querySelector("[button-add-cart]");
+  const tourId = button.getAttribute("tour-id");
+  const inputQuantityList =
+    detailedTourBox.querySelectorAll("[input-quantity]");
+  const cart = {};
+  cart.tourId = tourId;
+
+  const drawDetailedTourBox = () => {
+    let totalPrice = 0;
+
+    inputQuantityList.forEach((input) => {
+      const inputQuantity = input.getAttribute("input-quantity");
+      let quantity = Number(input.value);
+      const min = parseInt(input.getAttribute("min"));
+      const max = parseInt(input.getAttribute("max"));
+      const price = parseInt(input.getAttribute("data-price"));
+
+      // Giới hạn số lượng
+      if (quantity < min) {
+        quantity = min;
+        input.value = quantity;
+        notify.error("Số lượng đang vượt quá ngưỡng");
+      }
+      if (quantity > max) {
+        quantity = max;
+        input.value = quantity;
+        notify.error("Số lượng đang vượt quá ngưỡng");
+      }
+
+      // Cập nhật label
+      const quantityLabel = detailedTourBox.querySelector(
+        `[label-quantity="${inputQuantity}"]`
+      );
+      if (quantityLabel) quantityLabel.innerHTML = quantity;
+
+      // Cộng tiền vào tổng
+      totalPrice += price * quantity;
+    });
+
+    // Cập nhật tổng tiền hiển thị
+    const totalPriceElement = detailedTourBox.querySelector("[total-price]");
+    if (totalPriceElement) {
+      totalPriceElement.innerHTML = totalPrice.toLocaleString("vi-VN");
+    }
+  };
+
+  let cartLocalStorage = JSON.parse(localStorage.getItem("cart")) || [];
+  const existingTour = cartLocalStorage.find(
+    (item) => item.tourId === cart.tourId
+  );
+
+  if (existingTour) {
+    inputQuantityList.forEach((input) => {
+      const type = input.getAttribute("input-quantity");
+      if (type in existingTour) input.value = existingTour[type] || 0;
+    });
+  }
+  drawDetailedTourBox();
+
+  inputQuantityList.forEach((input) => {
+    input.addEventListener("change", drawDetailedTourBox);
+  });
+
+  const getCarData = () => {
+    const locationFrom = detailedTourBox.querySelector(
+      `[name="locationFrom"]`
+    ).value;
+    cart.locationFrom = locationFrom;
+    inputQuantityList.forEach((item) => {
+      const input = item.getAttribute(`input-quantity`);
+      if (input == "stockAdult") {
+        cart.stockAdult = item.value;
+      }
+      if (input == "stockChildren") {
+        cart.stockChildren = item.value;
+      }
+      if (input == "stockBaby") {
+        cart.stockBaby = item.value;
+      }
+    });
+  };
+
+  button.addEventListener("click", () => {
+    getCarData();
+
+    if (existingTour) {
+      existingTour.stockAdult = cart.stockAdult;
+      existingTour.stockChildren = cart.stockChildren;
+      existingTour.stockBaby = cart.stockBaby;
+      existingTour.locationFrom = cart.locationFrom;
+    } else {
+      cartLocalStorage.push(cart);
+    }
+
+    localStorage.setItem("cart", JSON.stringify(cartLocalStorage));
+    window.location.href = "/cart";
+  });
+}
+
+//Mini cart
+const miniCart = document.querySelector("[mini-cart]");
+if (miniCart) {
+  const cartLength = JSON.parse(localStorage.getItem("cart"));
+  miniCart.innerHTML = cartLength.length;
+}
+//End mini cart

@@ -5,9 +5,8 @@ include ../mixins/box-breadcrumb.pug
 
 block main
   // Breadcrumb
-  +box_breadcrumb()
+  +box_breadcrumb(breadcrumbList)
   // End Breadcrumb
-
 
   // Section 10
   .section-10
@@ -18,126 +17,46 @@ block main
             .inner-images-main
               .swiper.swiper-box-images-main
                 .swiper-wrapper
-                  .swiper-slide
-                    .inner-image
-                      img(
-                        alt="" 
-                        src="/assets/images/banner-9.png"
-                        )
-                  .swiper-slide
-                    .inner-image
-                      img(
-                        alt="" 
-                        src="/assets/images/banner-10.png"
-                        )
-                  .swiper-slide
-                    .inner-image
-                      img(
-                        alt="" 
-                        src="/assets/images/banner-11.png"
-                        )
-                  .swiper-slide
-                    .inner-image
-                      img(
-                        alt="" 
-                        src="/assets/images/banner-12.png"
-                        )
-                  .swiper-slide
-                    .inner-image
-                      img(
-                        alt="" 
-                        src="/assets/images/banner-12.png"
-                        )
+                  each image in detailedTour.images
+                    .swiper-slide
+                        .inner-image
+                          img(
+                            alt=""
+                            src=image
+                            )
             .inner-images-thumb
               .swiper.swiper-box-images-thumb
                 .swiper-wrapper
-                  .swiper-slide
-                    .inner-image
-                      img(
-                        alt="" 
-                        src="/assets/images/banner-9.png"
-                        )
-                  .swiper-slide
-                    .inner-image
-                      img(
-                        alt="" 
-                        src="/assets/images/banner-10.png"
-                        )
-                  .swiper-slide
-                    .inner-image
-                      img(
-                        alt="" 
-                        src="/assets/images/banner-11.png"
-                        )
-                  .swiper-slide
-                    .inner-image
-                      img(
-                        alt="" 
-                        src="/assets/images/banner-12.png"
-                        )
-                  .swiper-slide
-                    .inner-image
-                      img(
-                        alt="" 
-                        src="/assets/images/banner-12.png"
-                        )
+                  each image in detailedTour.images
+                    .swiper-slide
+                        .inner-image
+                          img(
+                            alt=""
+                            src=image
+                            )
           .box-tour-info
             .inner-title Thông Tin Tour
-            .inner-content
-              p
-                | Nói về dịch vụ, chắc chắn rồi, với một tiêu chí của một khách sạn 5 sao đẳng cấp, mình tin rằng Indochine Palace đủ để cho bạn đánh giá 6 sao. Từ nhà hàng, cà phê, đến trung tâm thể dục thể thao hiện đại đến Spa, xông hơi… tất tần tật các dịch vụ mà bạn mong muốn đều có ở đây.. Từ nhà hàng, cà phê, đến trung tâm thể dục thể thao hiện đại đến Spa, xông hơi… tất tần tật các dịch vụ mà bạn mong muốn đều có ở đây. . Từ nhà hàng, cà phê, đến trung tâm thể dục thể thao hiện đại đến Spa, xông hơi…
-              img(
-                alt="" 
-                src="/assets/images/banner-14.png"
-                )
-              p
-                | Lorem, ipsum dolor sit amet consectetur adipisicing elit. Eligendi corporis aperiam eos, ullam debitis laboriosam harum vero officiis! Eveniet quaerat eius libero ex quidem, adipisci corrupti! Sapiente explicabo quibusdam sed!
-              p
-                | Lorem, ipsum dolor sit amet consectetur adipisicing elit. Eligendi corporis aperiam eos, ullam debitis laboriosam harum vero officiis! Eveniet quaerat eius libero ex quidem, adipisci corrupti! Sapiente explicabo quibusdam sed!
-              p
-                | Lorem, ipsum dolor sit amet consectetur adipisicing elit. Eligendi corporis aperiam eos, ullam debitis laboriosam harum vero officiis! Eveniet quaerat eius libero ex quidem, adipisci corrupti! Sapiente explicabo quibusdam sed!
+            .inner-content !{detailedTour.information}
             .inner-read-more
               button.button-outline Xem tất cả
           .box-tour-schedule
             .inner-title-main Lịch Trình Tour
             .inner-list
               .inner-item
-                .inner-title NGÀY 1 | TP.HCM - THỦ ĐÔ HÀ NỘI
-                .inner-content
-                  p
-                    | Sáng: HDV TOPTEN TRAVEL® Đón Quý Khách tại sân bay Tân Sơn Nhất làm thủ tục check in cho đoàn đi Hà Nội (Quý Khách vui lòng có mặt ở sân bay trước 2 tiếng so với giờ bay. Đến sân bay Hà Nội – Xe và HDV đón Đoàn đưa về Khách sạn nghỉ ngơi. Đoàn dùng bữa trưa tại Nhà Hàng.
-                    br
-                    | Chiều: Tham quan Viếng Chùa Trấn Quốc – Ngôi chùa Trấn Bắc cổ kính nhất Việt Nam với 1.500 năm tuổi nằm trên bán đảo cồn Quy linh thiêng, với truyền thuyết và huyền thoại về Hồ Tây, hồ Trúc Bạch. Đền Ngọc Sơn, Cầu Thê Húc, hồ Hoàn Kiếm - Trực tiếp chứng kiến cụ Rùa dài 2,1m, ngang 1,2m được trưng bày tại đền Ngọc Sơn. Văn Miếu Quốc Tử Giám – Nơi đựoc xem như Trường Đại học đầu tiên của Việt Nam với 82 tấm bia Tiến sỹ còn lưu danh sử sách.
-                    br
-                    | Tối: Đoàn dùng cơm tối tại nhà hàng. Đoàn tự do nghỉ ngơi hoặc dạo chơi thăm phố cổ Hà Nội, dạo Hồ Gươm, mua sắm tại Chợ đêm Hà Nội sầm uất...
-                  img(
-                    alt="" 
-                    src="/assets/images/banner-15.png"
-                    )
-              .inner-item
-                .inner-title NGÀY 2 | TP.HCM - THỦ ĐÔ HÀ NỘI
-                .inner-content
-                  p
-                    | Sáng: HDV TOPTEN TRAVEL® Đón Quý Khách tại sân bay Tân Sơn Nhất làm thủ tục check in cho đoàn đi Hà Nội (Quý Khách vui lòng có mặt ở sân bay trước 2 tiếng so với giờ bay. Đến sân bay Hà Nội – Xe và HDV đón Đoàn đưa về Khách sạn nghỉ ngơi. Đoàn dùng bữa trưa tại Nhà Hàng.
-                    br
-                    | Chiều: Tham quan Viếng Chùa Trấn Quốc – Ngôi chùa Trấn Bắc cổ kính nhất Việt Nam với 1.500 năm tuổi nằm trên bán đảo cồn Quy linh thiêng, với truyền thuyết và huyền thoại về Hồ Tây, hồ Trúc Bạch. Đền Ngọc Sơn, Cầu Thê Húc, hồ Hoàn Kiếm - Trực tiếp chứng kiến cụ Rùa dài 2,1m, ngang 1,2m được trưng bày tại đền Ngọc Sơn. Văn Miếu Quốc Tử Giám – Nơi đựoc xem như Trường Đại học đầu tiên của Việt Nam với 82 tấm bia Tiến sỹ còn lưu danh sử sách.
-                    br
-                    | Tối: Đoàn dùng cơm tối tại nhà hàng. Đoàn tự do nghỉ ngơi hoặc dạo chơi thăm phố cổ Hà Nội, dạo Hồ Gươm, mua sắm tại Chợ đêm Hà Nội sầm uất...
-                  img(
-                    alt="" 
-                    src="/assets/images/banner-15.png"
-                    )
+                each item in detailedTour.schedules
+                  .inner-title !{item.title}
+                  .inner-content !{item.description}
         .inner-right
-          .box-tour-detail
+          .box-tour-detail  
             .inner-title-main Chuyến Đi Của Bạn
             .inner-product
               .inner-image
                 img(
                   alt="" 
-                  src="/assets/images/banner-13.png"
+                  src=detailedTour.avatar
                   )
               .inner-info
-                .inner-title Hà Nội - Ninh Bình - Hạ Long - Yên Tử - Sapa | 6N5D
+                .inner-title #{detailedTour.name}
                 .inner-rating
                   .inner-stars
                     i.fa-solid.fa-star
@@ -154,21 +73,20 @@ block main
               .inner-item
                 i.fa-solid.fa-calendar-days
                 span Thời Gian:
-                span.inner-highlight 6 Ngày 5 Đêm
+                span.inner-highlight #{detailedTour.time}
               .inner-item
                 i.fa-solid.fa-truck-plane
                 span Phương Tiện:
-                span.inner-highlight Ô tô 45 chỗ
+                span.inner-highlight #{detailedTour.vehicle}
               .inner-item
                 i.fa-solid.fa-calendar-days
                 span Ngày Khởi Hành:
-                span.inner-highlight 20/10/2024
+                span.inner-highlight #{detailedTour.formatDepartureDate}
             .inner-form
               label.inner-label Khởi Hành Tại:
-              select
-                option(value="") Hà Nội
-                option(value="") Đà Nẵng
-                option(value="") Hồ Chí Minh
+              select(name="locationFrom")
+                each item in locationNameList
+                  option(value=item.id) #{item.name}
             .inner-quantity
               label.inner-label Số Lượng Hành Khách
               .inner-list
@@ -176,40 +94,54 @@ block main
                   .inner-item-label Người lớn:
                   .inner-item-input
                     input(
-                      value="1" 
+                      value="0" 
                       min="0" 
+                      max=detailedTour.stockAdult
                       type="number"
+                      input-quantity="stockAdult"
+                      data-price=detailedTour.priceNewAdult
                       )
                   .inner-item-price
-                    span 1
+                    span(label-quantity="stockAdult") 0
                     span x
-                    span.inner-highlight 10.000.000
+                    span.inner-highlight #{detailedTour.priceNewAdult.toLocaleString("vi-VN")}
                 .inner-item
                   .inner-item-label Trẻ em:
                   .inner-item-input
                     input(
                       value="0" 
                       min="0" 
+                      max=detailedTour.stockChildren
                       type="number"
+                      input-quantity="stockChildren"
+                      data-price=detailedTour.priceNewChildren
                       )
                   .inner-item-price
-                    span 0
+                    span(label-quantity="stockChildren") 0
                     span x
-                    span.inner-highlight 7.990.000
+                    span.inner-highlight #{detailedTour.priceNewChildren.toLocaleString("vi-VN")}
                 .inner-item
                   .inner-item-label Em bé:
                   .inner-item-input
                     input(
                       value="0" 
                       min="0" 
+                      max=detailedTour.stockBaby
                       type="number"
+                      input-quantity="stockBaby"
+                      data-price=detailedTour.priceNewBaby
                       )
                   .inner-item-price
-                    span 0
+                    span(label-quantity="stockBaby") 0
                     span x
-                    span.inner-highlight 5.990.000
+                    span.inner-highlight #{detailedTour.priceNewBaby.toLocaleString("vi-VN")}
             .inner-total
               .inner-total-label Tổng cộng:
-              .inner-total-price 10.000.000 đ
-            button.inner-button-add-cart Thêm Vào Giỏ Hàng
+              .inner-total-price
+                span(total-price) 0
+                span đ
+            button.inner-button-add-cart(
+              button-add-cart
+              tour-id=detailedTour.id
+              ) Thêm Vào Giỏ Hàng
   // End Section 10

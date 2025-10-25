@@ -31,6 +31,10 @@ block main
           label(class="inner-label" for="avatar") Ảnh đại diện
           div(class="inner-upload-image" image-default = detailedTour.avatar)
             input(type="file" id="avatar" accept="image/*" filepond-image name="avatar")
+        .inner-group.inner-two-col
+          label(class="inner-label" for="images") Danh sách ảnh
+          div(class="inner-upload-image-multi" list-image-default=detailedTour.images) 
+            input(type="file" multiple data-allow-reorder="true" id="images" accept="image/*" filepond-image-multi name="images")
         .inner-group
           label(class="inner-label") Giá cũ
           .inner-input-list
@@ -123,6 +127,6 @@ block main
               
             .inner-schedule-create + Thêm lich trình
         .inner-button.inner-two-col
-          button Tạo mới
+          button Cập nhật
       .inner-back
         a(href=`/${pathAdmin}/tour/list`) Quay lại danh sách

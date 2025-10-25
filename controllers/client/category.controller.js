@@ -47,6 +47,7 @@ module.exports.list = async (req, res) => {
   breadcrumbList.push({
     name: detailedCategory.name,
     slug: detailedCategory.slug,
+    avatar: detailedCategory.avatar,
   });
 
   const getTourListByCategory = async (parentCategoryId, limit = 8) => {

@@ -15,7 +15,10 @@ route.get("/edit/:id", tourController.edit);
 
 route.patch(
   "/edit/:id",
-  upload.single("avatar"),
+  upload.fields([
+    { name: "avatar", maxCount: 1 },
+    { name: "images", maxCount: 10 },
+  ]),
   tourValidate.createPost,
   tourController.editPatch
 );
@@ -26,11 +29,14 @@ route.patch("/undo/:id", tourController.undoPatch);
 
 route.delete("/destroy/:id", tourController.destroyDelete);
 
-route.patch("/change-multi/", tourController.changeMultiPatch)
+route.patch("/change-multi/", tourController.changeMultiPatch);
 
 route.post(
   "/create",
-  upload.single("avatar"),
+  upload.fields([
+    { name: "avatar", maxCount: 1 },
+    { name: "images", maxCount: 10 },
+  ]),
   tourValidate.createPost,
   tourController.createPost
 );

@@ -108,6 +108,43 @@ if (listFilepondImage.length > 0) {
 }
 // End Filepond Image
 
+// Filepond Images
+const listFilepondImageMulti = document.querySelectorAll(
+  "[filepond-image-multi]"
+);
+let filePondMulti = {};
+if (listFilepondImageMulti.length > 0) {
+  listFilepondImageMulti.forEach((filepondImage) => {
+    FilePond.registerPlugin(FilePondPluginImagePreview);
+    FilePond.registerPlugin(FilePondPluginFileValidateType);
+
+    let files = null;
+    const elementListImageDefault = filepondImage.closest(
+      "[list-image-default]"
+    );
+    if (elementListImageDefault) {
+      let listImageDefault =
+        elementListImageDefault.getAttribute("list-image-default");
+      if (listImageDefault) {
+        listImageDefault = JSON.parse(listImageDefault);
+        files = [];
+        listImageDefault.forEach((image) => {
+          files.push({
+            source: image, // Đường dẫn ảnh
+          });
+        });
+      }
+    }
+
+    filePondMulti[filepondImage.name] = FilePond.create(filepondImage, {
+      labelIdle: "+",
+      files: files,
+    });
+  });
+}
+
+// End Filepond Images
+
 // Biểu đồ doanh thu
 const revenueChart = document.querySelector("#revenue-chart");
 if (revenueChart) {
@@ -304,6 +341,14 @@ if (tourCreateForm) {
       const information = tinymce.get("information").getContent();
       const schedules = [];
 
+      // images
+      if (filePondMulti.images.getFiles().length > 0) {
+        filePondMulti.images.getFiles().forEach((item) => {
+          formData.append("images", item.file);
+        });
+      }
+      // End i
+
       // locations
       const listElementLocation = tourCreateForm.querySelectorAll(
         'input[name="locations"]:checked'
@@ -468,6 +513,14 @@ if (tourEditForm) {
       formData.append("departureDate", departureDate);
       formData.append("information", information);
       formData.append("schedules", JSON.stringify(schedules));
+
+      // images
+      if (filePondMulti.images.getFiles().length > 0) {
+        filePondMulti.images.getFiles().forEach((item) => {
+          formData.append("images", item.file);
+        });
+      }
+      // End i
 
       fetch(`/${pathAdmin}/tour/edit/${id}`, {
         method: "PATCH",

@@ -1,14 +1,15 @@
-mixin box_breadcrumb()
+mixin box_breadcrumb(list)
+  - const lastItem = list[list.length - 1]
   .box-breadcrumb
     .inner-image
       img(
-        alt=detailedCategory.name
-        src=detailedCategory.avatar
+        alt=lastItem.name
+        src=lastItem.avatar
         )
     .inner-content
       .container
-        h1.inner-title #{detailedCategory.name}
+        h1.inner-title #{lastItem.name}
         .inner-list
           a(href="/") Trang Chủ
-          each item in breadcrumbList
+          each item in list
             a(href=`/category/${item.slug}`) #{item.name}
