@@ -187,7 +187,7 @@ if (forgotPasswordForm) {
             notify.error(data.message);
           }
         });
-    });
+    });re
 }
 // End Forgot Password Form
 

@@ -595,3 +595,123 @@ if (miniCart) {
   miniCart.innerHTML = cartLength.length;
 }
 //End mini cart
+
+//Page cart
+const pageCart = document.querySelector("[page-cart]");
+if (pageCart) {
+  const cart = localStorage.getItem("cart");
+  fetch("/cart/detail", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: cart,
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.code == "success") {
+        let subTotal = 0;
+
+        const htmlArray = data.cart.map((item) => {
+          subTotal +=
+            item.priceNewAdult * item.quantityAdult +
+            item.priceNewChildren * item.quantityChildren +
+            item.priceNewBaby * item.quantityBaby;
+          return `
+            <div class="inner-tour-item">
+              <div class="inner-actions">
+                <button class="inner-delete">
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+                <input class="inner-check" type="checkbox" />
+              </div>
+              <div class="inner-product">
+                <div class="inner-image">
+                  <a href="/tour/detail/${item.slug}">
+                    <img alt="${item.name}" src="${item.avatar}" />
+                  </a>
+                </div>
+                <div class="inner-content">
+                  <div class="inner-title">
+                    <a href="/tour/detail/${item.slug}">${item.name}</a>
+                  </div>
+                  <div class="inner-meta">
+                    <div class="inner-meta-item">
+                      Ngày Khởi Hành: <b>${item.departureDate}</b>
+                    </div>
+                    <div class="inner-meta-item">
+                      Khởi Hành Tại: <b>${item.cityName}</b>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="inner-quantity">
+                <label class="inner-label">Số Lượng Hành Khách</label>
+                <div class="inner-list">
+                  <div class="inner-item">
+                    <div class="inner-item-label">Người lớn:</div>
+                    <div class="inner-item-input">
+                      <input value="${item.quantityAdult}" min="0" max="${
+            item.stockAdult
+          }" type="number" />
+                    </div>
+                    <div class="inner-item-price">
+                      <span>${item.quantityAdult}</span>
+                      <span>x</span>
+                      <span class="inner-highlight">
+                        ${item.priceNewAdult.toLocaleString("vi-VN")}
+                      </span>
+                    </div>
+                  </div>
+                  <div class="inner-item">
+                    <div class="inner-item-label">Trẻ em:</div>
+                    <div class="inner-item-input">
+                      <input value="${item.quantityChildren}" min="0" max="${
+            item.stockChildren
+          }" type="number" />
+                    </div>
+                    <div class="inner-item-price">
+                      <span>${item.quantityChildren}</span>
+                      <span>x</span>
+                      <span class="inner-highlight">
+                        ${item.priceNewChildren.toLocaleString("vi-VN")}
+                      </span>
+                    </div>
+                  </div>
+                  <div class="inner-item">
+                    <div class="inner-item-label">Em bé:</div>
+                    <div class="inner-item-input">
+                      <input value="${item.quantityBaby}" min="0" max="${
+            item.stockBaby
+          }" type="number" />
+                    </div>
+                    <div class="inner-item-price">
+                      <span>${item.quantityBaby}</span>
+                      <span>x</span>
+                      <span class="inner-highlight">
+                        ${item.priceNewBaby.toLocaleString("vi-VN")}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+
+        let discount = 0;
+        let total = subTotal - discount;
+
+        const elementCartList = document.querySelector("[cart-list]");
+        elementCartList.innerHTML = htmlArray.join("");
+
+        const elementCartSubTotal = document.querySelector("[cart-sub-total]");
+        const elementCartTotal = document.querySelector("[cart-total]");
+        elementCartSubTotal.innerHTML = subTotal.toLocaleString("vi-VN");
+        elementCartTotal.innerHTML = total.toLocaleString("vi-VN");
+      } else {
+        localStorage.setItem("cart", JSON.stringify([]));
+      }
+    });
+}
+//end page cart

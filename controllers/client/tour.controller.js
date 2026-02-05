@@ -54,7 +54,6 @@ module.exports.detail = async (req, res) => {
     detailedTour.formatDepartureDate = formatDepartureDate;
   }
 
-  console.log(detailedTour);
   res.render("client/page/tour-detail.pug", {
     pageTitle: "Chi tiết tour",
     breadcrumbList: breadcrumbList,
