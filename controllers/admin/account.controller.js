@@ -26,7 +26,7 @@ module.exports.loginPost = async (req, res) => {
 
   const isPasswordValidate = await bcrypt.compare(
     password,
-    existAccount.password
+    existAccount.password,
   );
 
   if (!isPasswordValidate) {
@@ -36,7 +36,6 @@ module.exports.loginPost = async (req, res) => {
     });
     return;
   }
-  console.log(existAccount.status);
   if (existAccount.status != "active") {
     res.json({
       code: "error",
@@ -53,7 +52,7 @@ module.exports.loginPost = async (req, res) => {
     process.env.JWT_SECRET,
     {
       expiresIn: rememberPassword ? "7d" : "1d",
-    }
+    },
   );
 
   res.cookie("token", token, {
@@ -201,7 +200,7 @@ module.exports.otpPasswordPost = async (req, res) => {
     process.env.JWT_SECRET,
     {
       expiresIn: "1d",
-    }
+    },
   );
 
   res.cookie("token", token, {
@@ -230,7 +229,7 @@ module.exports.resetPasswordPost = async (req, res) => {
 
   await AccountAdmin.updateOne(
     { _id: req.account.id },
-    { password: newPassword }
+    { password: newPassword },
   );
 
   res.json({

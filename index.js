@@ -28,5 +28,5 @@ app.use(`/${variableConfig.pathAdmin}`, adminRoutes);
 app.use("/", clientRoutes);
 
 app.listen(port, () => {
-  console.log(`The programming is running at port ${port}`);
+  console.log(`The programming is running at port: http://localhost:${port}`);
 });

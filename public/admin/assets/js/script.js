@@ -52,7 +52,7 @@ if (scheduleSection8) {
     if (event.target.closest(".inner-remove")) {
       const parentItem = event.target.closest(".inner-schedule-item");
       const totalItem = listItem.querySelectorAll(
-        ".inner-schedule-item"
+        ".inner-schedule-item",
       ).length;
       if (parentItem && totalItem > 1) {
         parentItem.remove();
@@ -110,7 +110,7 @@ if (listFilepondImage.length > 0) {
 
 // Filepond Images
 const listFilepondImageMulti = document.querySelectorAll(
-  "[filepond-image-multi]"
+  "[filepond-image-multi]",
 );
 let filePondMulti = {};
 if (listFilepondImageMulti.length > 0) {
@@ -120,7 +120,7 @@ if (listFilepondImageMulti.length > 0) {
 
     let files = null;
     const elementListImageDefault = filepondImage.closest(
-      "[list-image-default]"
+      "[list-image-default]",
     );
     if (elementListImageDefault) {
       let listImageDefault =
@@ -351,7 +351,7 @@ if (tourCreateForm) {
 
       // locations
       const listElementLocation = tourCreateForm.querySelectorAll(
-        'input[name="locations"]:checked'
+        'input[name="locations"]:checked',
       );
       listElementLocation.forEach((input) => {
         locations.push(input.value);
@@ -360,7 +360,7 @@ if (tourCreateForm) {
 
       // schedules
       const listElementScheduleItem = tourCreateForm.querySelectorAll(
-        ".inner-schedule-item"
+        ".inner-schedule-item",
       );
       listElementScheduleItem.forEach((scheduleItem) => {
         const input = scheduleItem.querySelector("input");
@@ -466,7 +466,7 @@ if (tourEditForm) {
 
       // locations
       const listElementLocation = tourEditForm.querySelectorAll(
-        'input[name="locations"]:checked'
+        'input[name="locations"]:checked',
       );
       listElementLocation.forEach((input) => {
         locations.push(input.value);
@@ -475,7 +475,7 @@ if (tourEditForm) {
 
       // schedules
       const listElementScheduleItem = tourEditForm.querySelectorAll(
-        ".inner-schedule-item"
+        ".inner-schedule-item",
       );
       listElementScheduleItem.forEach((scheduleItem) => {
         const input = scheduleItem.querySelector("input");
@@ -592,7 +592,7 @@ if (orderEditForm) {
 
 // Setting Website Info Form
 const settingWebsiteInfoForm = document.querySelector(
-  "#setting-website-info-form"
+  "#setting-website-info-form",
 );
 if (settingWebsiteInfoForm) {
   const validation = new JustValidate("#setting-website-info-form");
@@ -653,7 +653,7 @@ if (settingWebsiteInfoForm) {
 
 // Setting Account Admin Create Form
 const settingAccountAdminCreateForm = document.querySelector(
-  "#setting-account-admin-create-form"
+  "#setting-account-admin-create-form",
 );
 if (settingAccountAdminCreateForm) {
   const validation = new JustValidate("#setting-account-admin-create-form");
@@ -780,7 +780,7 @@ if (settingAccountAdminCreateForm) {
 
 // Setting Account Admin Edit Form
 const settingAccountAdminEditForm = document.querySelector(
-  "#setting-account-admin-edit-form"
+  "#setting-account-admin-edit-form",
 );
 if (settingAccountAdminEditForm) {
   const validation = new JustValidate("#setting-account-admin-edit-form");
@@ -883,7 +883,7 @@ if (settingAccountAdminEditForm) {
 
 // Setting Role Create Form
 const settingRoleCreateForm = document.querySelector(
-  "#setting-role-create-form"
+  "#setting-role-create-form",
 );
 if (settingRoleCreateForm) {
   const validation = new JustValidate("#setting-role-create-form");
@@ -902,7 +902,7 @@ if (settingRoleCreateForm) {
 
       // permissions
       const listElementPermission = settingRoleCreateForm.querySelectorAll(
-        'input[name="permissions"]:checked'
+        'input[name="permissions"]:checked',
       );
       listElementPermission.forEach((input) => {
         permissions.push(input.value);
@@ -958,7 +958,7 @@ if (settingRoleEditForm) {
 
       // permissions
       const listElementPermission = settingRoleEditForm.querySelectorAll(
-        'input[name="permissions"]:checked'
+        'input[name="permissions"]:checked',
       );
       listElementPermission.forEach((input) => {
         permissions.push(input.value);
@@ -1083,7 +1083,7 @@ if (profileEditForm) {
 
 // Profile Change Password Form
 const profileChangePasswordForm = document.querySelector(
-  "#profile-change-password-form"
+  "#profile-change-password-form",
 );
 if (profileChangePasswordForm) {
   const validation = new JustValidate("#profile-change-password-form");
@@ -1382,7 +1382,7 @@ if (changeMulti) {
     button.addEventListener("click", () => {
       const option = select.value;
       const listInputChecked = document.querySelectorAll(
-        "[check-item]:checked"
+        "[check-item]:checked",
       );
       if (option && listInputChecked.length > 0) {
         const ids = [];

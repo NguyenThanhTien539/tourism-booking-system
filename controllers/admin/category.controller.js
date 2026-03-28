@@ -25,7 +25,7 @@ module.exports.list = async (req, res) => {
       find.createdAt.$lte = moment(queries.endDate).toDate();
     }
   }
-  
+
   if (queries.keyword) {
     const keyword = slugify(queries.keyword);
     const keywordRegex = new RegExp(keyword, "i");
@@ -162,7 +162,7 @@ module.exports.deletePatch = async (req, res) => {
 
     await Category.updateOne(
       { _id: id },
-      { deleted: true, deletedBy: req.account.id, deletedAt: Date.now() }
+      { deleted: true, deletedBy: req.account.id, deletedAt: Date.now() },
     );
 
     res.json({
@@ -199,7 +199,7 @@ module.exports.changeMultiPatch = async (req, res) => {
       case "delete":
         await Category.updateMany(
           { _id: { $in: ids } },
-          { deleted: true, updatedAt: req.account.id, deletedAt: Date.now() }
+          { deleted: true, updatedAt: req.account.id, deletedAt: Date.now() },
         );
         res.json({
           code: "success",
