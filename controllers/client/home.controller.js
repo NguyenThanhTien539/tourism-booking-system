@@ -13,11 +13,11 @@ module.exports.home = async (req, res) => {
   featuredTourListSection2.forEach((item) => {
     if (item.departureDate)
       item.departureDateFormat = moment(item.departureDate).format(
-        "DD/MM/YYYY"
+        "DD/MM/YYYY",
       );
     if (item.priceAdult && item.priceNewAdult) {
       const discount = Math.floor(
-        ((item.priceAdult - item.priceNewAdult) / item.priceAdult) * 100
+        ((item.priceAdult - item.priceNewAdult) / item.priceAdult) * 100,
       );
       item.discount = discount;
     }
@@ -25,7 +25,9 @@ module.exports.home = async (req, res) => {
   //end section2
 
   const getTourListByCategory = async (parentCategoryId, limit = 8) => {
-    if (!parentCategoryId) return [];
+    if (!parentCategoryId) {
+      return { tours: [], detailedCategory: null };
+    }
 
     // Lấy danh mục cha
     const detailedCategory = await Category.findOne({
@@ -34,7 +36,9 @@ module.exports.home = async (req, res) => {
       _id: parentCategoryId,
     });
 
-    if (!detailedCategory) return [];
+    if (!detailedCategory) {
+      return { tours: [], detailedCategory: null };
+    }
 
     // Lấy danh mục con
     const childCategories = await getCategoryChild(parentCategoryId);
@@ -53,12 +57,12 @@ module.exports.home = async (req, res) => {
     tours.forEach((item) => {
       if (item.departureDate)
         item.departureDateFormat = moment(item.departureDate).format(
-          "DD/MM/YYYY"
+          "DD/MM/YYYY",
         );
 
       if (item.priceAdult && item.priceNewAdult) {
         item.discount = Math.floor(
-          ((item.priceAdult - item.priceNewAdult) / item.priceAdult) * 100
+          ((item.priceAdult - item.priceNewAdult) / item.priceAdult) * 100,
         );
       }
     });

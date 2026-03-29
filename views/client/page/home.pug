@@ -224,7 +224,7 @@ block main
       h2.box-title(
         data-aos-duration="800" 
         data-aos="fade-up"
-        ) #{detailedCategorySection6.name}
+        ) #{detailedCategorySection6 && detailedCategorySection6.name ? detailedCategorySection6.name : 'Tour Noi Bat'}
       .inner-wrap(
         data-aos-delay="150" 
         data-aos-duration="800" 
@@ -236,7 +236,8 @@ block main
         //- // End Product Item
 
       .inner-button
-        a.button-outline(href=`/category/${detailedCategorySection6.slug}`) Xem tất cả
+        if detailedCategorySection6 && detailedCategorySection6.slug
+          a.button-outline(href=`/category/${detailedCategorySection6.slug}`) Xem tất cả
   // End Section 6
   // Section 7
   .section-5(

@@ -68,7 +68,7 @@ module.exports.edit = async (req, res) => {
     });
 
     detailedTour.departureDateFormat = moment(
-      detailedTour.departureDate
+      detailedTour.departureDate,
     ).format("YYYY-MM-DD");
 
     res.render("admin/pages/tour-edit.pug", {
@@ -206,7 +206,7 @@ module.exports.deletePatch = async (req, res) => {
 
     await Tour.updateOne(
       { _id: id },
-      { deleted: true, deletedBy: req.account.id, deletedAt: Date.now() }
+      { deleted: true, deletedBy: req.account.id, deletedAt: Date.now() },
     );
 
     res.json({
@@ -285,7 +285,7 @@ module.exports.changeMultiPatch = async (req, res) => {
       case "delete":
         await Tour.updateMany(
           { _id: { $in: ids } },
-          { deleted: true, updatedAt: req.account.id, deletedAt: Date.now() }
+          { deleted: true, updatedAt: req.account.id, deletedAt: Date.now() },
         );
         res.json({
           code: "success",

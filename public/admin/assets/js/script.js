@@ -268,8 +268,10 @@ if (categoryEditForm) {
         const elementImageDefault =
           event.target.avatar.closest("[image-default]");
 
-        const imageDefault = elementImageDefault.getAttribute("image-default");
-        if (imageDefault.includes(avatar.name)) {
+        const imageDefault = elementImageDefault
+          ? elementImageDefault.getAttribute("image-default")
+          : "";
+        if (imageDefault && imageDefault.includes(avatar.name)) {
           avatar = undefined;
         }
       }
@@ -341,14 +343,6 @@ if (tourCreateForm) {
       const information = tinymce.get("information").getContent();
       const schedules = [];
 
-      // images
-      if (filePondMulti.images.getFiles().length > 0) {
-        filePondMulti.images.getFiles().forEach((item) => {
-          formData.append("images", item.file);
-        });
-      }
-      // End i
-
       // locations
       const listElementLocation = tourCreateForm.querySelectorAll(
         'input[name="locations"]:checked',
@@ -398,6 +392,14 @@ if (tourCreateForm) {
       formData.append("departureDate", departureDate);
       formData.append("information", information);
       formData.append("schedules", JSON.stringify(schedules));
+
+      // images
+      if (filePondMulti.images && filePondMulti.images.getFiles().length > 0) {
+        filePondMulti.images.getFiles().forEach((item) => {
+          formData.append("images", item.file);
+        });
+      }
+      // End images
 
       fetch(`/${pathAdmin}/tour/create`, {
         method: "POST",

@@ -130,7 +130,7 @@ module.exports.edit = async (req, res) => {
 module.exports.editPatch = async (req, res) => {
   try {
     const { id } = req.params;
-
+    console.log(req.body);
     if (req.body.position) req.body.position = parseInt(req.body.position);
     else {
       const totalRecord = await Category.countDocuments({});
