@@ -23,11 +23,11 @@ const schema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 module.exports.AccountAdmin = mongoose.model(
   "AccountAdmin",
   schema,
-  "accounts-admin"
+  "accounts-admin",
 );

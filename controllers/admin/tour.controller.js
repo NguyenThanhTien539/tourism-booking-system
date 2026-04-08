@@ -4,18 +4,43 @@ const { City } = require("../../models/cities.model");
 const { Tour } = require("../../models/tour.model");
 const { AccountAdmin } = require("../../models/accounts-admin.model");
 const moment = require("moment");
+const slugify = require("slugify");
+
+const escapeRegex = (value = "") =>
+  value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 module.exports.list = async (req, res) => {
-  const find = {};
   const queries = req.query;
-  const infoAdmins = await AccountAdmin.find({});
-  find.deleted = false;
+  const find = { deleted: false };
   if (queries.status) {
     find.status = queries.status;
   }
 
   if (queries.createdBy) {
     find.createdBy = queries.createdBy;
+  }
+
+  if (queries.category) {
+    find.category = queries.category;
+  }
+
+  if (queries.priceRange) {
+    switch (queries.priceRange) {
+      case "under-2m":
+        find.priceAdult = { $lt: 2000000 };
+        break;
+      case "2m-4m":
+        find.priceAdult = { $gte: 2000000, $lte: 4000000 };
+        break;
+      case "4m-8m":
+        find.priceAdult = { $gte: 4000000, $lte: 8000000 };
+        break;
+      case "over-8m":
+        find.priceAdult = { $gt: 8000000 };
+        break;
+      default:
+        break;
+    }
   }
 
   if (queries.startDate || queries.endDate) {
@@ -27,11 +52,45 @@ module.exports.list = async (req, res) => {
     if (queries.endDate) {
       find.createdAt.$lte = moment(queries.endDate).toDate();
     }
-    // console.log(new Date(queries.startDate));
-    // console.log(moment(queries.startDate).toDate());
   }
 
-  const tourList = await Tour.find(find);
+  if (queries.keyword) {
+    const keyword = queries.keyword.trim();
+    const keywordSlug = slugify(keyword, {
+      lower: true,
+      strict: true,
+      locale: "vi",
+    });
+
+    const nameRegex = new RegExp(escapeRegex(keyword), "i");
+
+    if (keywordSlug) {
+      const slugRegex = new RegExp(escapeRegex(keywordSlug), "i");
+      find.$or = [{ name: nameRegex }, { slug: slugRegex }];
+    } else {
+      find.$or = [{ name: nameRegex }];
+    }
+  }
+
+  const limitedItems = 5;
+  let page = parseInt(queries.page) || 1;
+  if (page < 1) page = 1;
+
+  const totalRecord = await Tour.countDocuments(find);
+  const totalPage = Math.max(1, Math.ceil(totalRecord / limitedItems));
+  if (page > totalPage) page = totalPage;
+
+  const skip = (page - 1) * limitedItems;
+  const pagination = {
+    totalRecord: totalRecord,
+    totalPage: totalPage,
+    skip: skip,
+    currentPage: page,
+    startItem: totalRecord === 0 ? 0 : skip + 1,
+    endItem: Math.min(skip + limitedItems, totalRecord),
+  };
+
+  const tourList = await Tour.find(find).limit(limitedItems).skip(skip);
 
   for (const tour of tourList) {
     if (tour.createdBy) {
@@ -48,10 +107,15 @@ module.exports.list = async (req, res) => {
     tour.updatedAtFormat = moment(tour.updatedAt).format("HH:mm - DD/MM/YYYY");
   }
 
+  const userAdmin = await AccountAdmin.find({});
+  const categoryList = await Category.find({ deleted: false });
+
   res.render("admin/pages/tour-list.pug", {
     pageTitle: "Quản lý tour",
     tourList: tourList,
-    infoAdmins: infoAdmins,
+    userAdmin: userAdmin,
+    categoryList: categoryList,
+    pagination: pagination,
   });
 };
 
@@ -85,7 +149,6 @@ module.exports.edit = async (req, res) => {
 module.exports.editPatch = async (req, res) => {
   try {
     const { id } = req.params;
-
     const totalRecord = await Tour.countDocuments({});
 
     if (req.files && req.files.avatar && req.files.avatar.length > 0)
@@ -97,7 +160,7 @@ module.exports.editPatch = async (req, res) => {
     if (req.files && req.files.images && req.files.images.length > 0)
       req.body.images = req.files.images.map((item) => item.path);
     else {
-      delete req.body.avatar;
+      delete req.body.images;
     }
 
     req.body.position = req.body.position

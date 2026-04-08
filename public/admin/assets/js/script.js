@@ -255,7 +255,7 @@ if (categoryEditForm) {
       },
     ])
     .onSuccess((event) => {
-      const id = event.target.id.value;
+      const id = event.target.elements["id"].value;
       const name = event.target.name.value;
       const parent = event.target.parent.value;
       const position = event.target.position.value;
@@ -432,7 +432,7 @@ if (tourEditForm) {
       },
     ])
     .onSuccess((event) => {
-      const id = event.target.id.value;
+      const id = event.target.elements["id"].value;
       const name = event.target.name.value;
       const category = event.target.category.value;
       const position = event.target.position.value;
@@ -444,9 +444,11 @@ if (tourEditForm) {
 
         const elementImageDefault =
           event.target.avatar.closest("[image-default]");
+        const imageDefault = elementImageDefault
+          ? elementImageDefault.getAttribute("image-default")
+          : "";
 
-        const imageDefault = elementImageDefault.getAttribute("image-default");
-        if (imageDefault.includes(avatar.name)) {
+        if (imageDefault && imageDefault.includes(avatar.name)) {
           avatar = undefined;
         }
       }
@@ -832,7 +834,7 @@ if (settingAccountAdminEditForm) {
       },
     ])
     .onSuccess((event) => {
-      const id = event.target.id.value;
+      const id = event.target.elements["id"].value;
       const fullName = event.target.fullName.value;
       const email = event.target.email.value;
       const phone = event.target.phone.value;
@@ -953,7 +955,7 @@ if (settingRoleEditForm) {
       },
     ])
     .onSuccess((event) => {
-      const id = event.target.id.value;
+      const id = event.target.elements["id"].value;
       const name = event.target.name.value;
       const description = event.target.description.value;
       const permissions = [];
@@ -1352,6 +1354,50 @@ if (filterEndDate) {
 }
 // End Filter end date
 
+// Filter category
+const filterCategory = document.querySelector("[filter-category]");
+if (filterCategory) {
+  const newURL = new URL(window.location.href);
+
+  filterCategory.addEventListener("change", () => {
+    const value = filterCategory.value;
+
+    if (value) {
+      newURL.searchParams.set("category", value);
+    } else {
+      newURL.searchParams.delete("category");
+    }
+
+    window.location.href = newURL;
+  });
+
+  const currentValue = newURL.searchParams.get("category");
+  if (currentValue) filterCategory.value = currentValue;
+}
+// End filter category
+
+// Filter price range
+const filterPriceRange = document.querySelector("[filter-price-range]");
+if (filterPriceRange) {
+  const newURL = new URL(window.location.href);
+
+  filterPriceRange.addEventListener("change", () => {
+    const value = filterPriceRange.value;
+
+    if (value) {
+      newURL.searchParams.set("priceRange", value);
+    } else {
+      newURL.searchParams.delete("priceRange");
+    }
+
+    window.location.href = newURL;
+  });
+
+  const currentValue = newURL.searchParams.get("priceRange");
+  if (currentValue) filterPriceRange.value = currentValue;
+}
+// End filter price range
+
 //Delete all filter
 const deleteFilterButton = document.querySelector("[delete-filter-button]");
 if (deleteFilterButton) {
@@ -1474,20 +1520,43 @@ if (search) {
 const boxPagination = document.querySelector("[box-pagination]");
 if (boxPagination) {
   const url = new URL(window.location.href);
+  const selectPagination =
+    boxPagination.tagName == "SELECT"
+      ? boxPagination
+      : boxPagination.querySelector("select");
 
-  boxPagination.addEventListener("change", () => {
-    const value = boxPagination.value;
-    if (value) {
-      url.searchParams.set("page", value);
-    } else {
-      url.searchParams.delete("page");
+  if (selectPagination) {
+    selectPagination.addEventListener("change", () => {
+      const value = selectPagination.value;
+      if (value) {
+        url.searchParams.set("page", value);
+      } else {
+        url.searchParams.delete("page");
+      }
+      window.location.href = url.href;
+    });
+
+    const currentPage = url.searchParams.get("page");
+    if (currentPage) {
+      selectPagination.value = currentPage;
     }
-    window.location.href = url.href;
-  });
+  }
 
-  const value = url.searchParams.get("page");
-  if (value) {
-    boxPagination.value = value;
+  const pageButtons = boxPagination.querySelectorAll("[data-page]");
+  if (pageButtons.length > 0) {
+    pageButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        if (button.disabled) return;
+
+        const page = button.getAttribute("data-page");
+        if (page) {
+          url.searchParams.set("page", page);
+        } else {
+          url.searchParams.delete("page");
+        }
+        window.location.href = url.href;
+      });
+    });
   }
 }
 

@@ -1,14 +1,15 @@
 extends ../layouts/default.pug
 
-
 block main
   if (permissions.includes("tour-list"))
     h1.box-title Quản lý tour
+
     //- Section 4
     .section-4
       .inner-wrap
         .inner-item.inner-label
-          <i class="fa-solid fa-filter"></i> Bộ lọc
+          i.fa-solid.fa-filter
+          | Bộ lọc
         .inner-item
           select(filter-status)
             option(value="") Trạng thái
@@ -17,26 +18,27 @@ block main
         .inner-item
           select(filter-created-by)
             option(value="") Người tạo
-            each admin in infoAdmins
-              option(value=admin.id) #{admin.fullName}
+            each item in userAdmin
+              option(value=item.id) #{item.fullName}
         .inner-item.inner-date
           input(type="date" filter-start-date)
           span -
           input(type="date" filter-end-date)
         .inner-item
-          select
+          select(filter-category)
             option(value="") Danh mục
-            option(value="") Danh mục 1
-            option(value="") Danh mục 2
+            each item in categoryList
+              option(value=item.id) #{item.name}
         .inner-item
-          select
+          select(filter-price-range)
             option(value="") Mức giá
-            option(value="") Dưới 2tr
-            option(value="") 2tr đến 4tr
-            option(value="") 4tr đến 8tr
-            option(value="") Trên 8tr
+            option(value="under-2m") Dưới 2tr
+            option(value="2m-4m") 2tr đến 4tr
+            option(value="4m-8m") 4tr đến 8tr
+            option(value="over-8m") Trên 8tr
         .inner-item.inner-reset(delete-filter-button)
-          <i class="fa-solid fa-rotate-left"></i> Xóa bộ lọc
+          i.fa-solid.fa-rotate-left
+          | Xóa bộ lọc
     //- End Section 4
 
     //- Section 5
@@ -52,14 +54,14 @@ block main
           .inner-item
             button Áp dụng
         .inner-search
-          <i class="fa-solid fa-magnifying-glass"></i>
-          input(type="text" placeholder="Tìm kiếm")
-        if(permissions.includes("tour-create"))
+          i.fa-solid.fa-magnifying-glass
+          input(type="text" placeholder="Tìm kiếm" search)
+        if (permissions.includes("tour-create"))
           .inner-button-create
-            a(href=`/${pathAdmin}/tour/create`)  + Tạo mới
-        if(permissions.includes("tour-trash"))
+            a(href=`/${pathAdmin}/tour/create`) + Tạo mới
+        if (permissions.includes("tour-trash"))
           .inner-button-trash
-            a(href=`/${pathAdmin}/tour/trash`)  Thùng rác
+            a(href=`/${pathAdmin}/tour/trash`) Thùng rác
     //- End Section 5
 
     //- Section 6
@@ -68,25 +70,25 @@ block main
         table
           thead
             tr
-              th(class="inner-center")
-                input(type="checkbox" class="inner-check" check-all)
+              th.inner-center
+                input.inner-check(type="checkbox" check-all)
               th Tên tour
               th Ảnh đại diện
               th Giá
               th Còn lại
-              th(class="inner-center") Vị trí
-              th(class="inner-center" ) Trạng thái
+              th.inner-center Vị trí
+              th.inner-center Trạng thái
               th Tạo bởi
               th Cập nhật bởi
               th Hành động
           tbody
             each item in tourList
               tr
-                td(class="inner-center")
-                  input(type="checkbox" class="inner-check" check-item = item.id)
+                td.inner-center
+                  input.inner-check(type="checkbox" check-item=item.id)
                 td #{item.name}
                 td
-                  img(src=item.avatar class="inner-avatar")
+                  img.inner-avatar(src=item.avatar)
                 td
                   div NL: #{item.priceAdult.toLocaleString("vi-VN")}đ
                   div TE: #{item.priceChildren.toLocaleString("vi-VN")}đ
@@ -95,11 +97,11 @@ block main
                   div NL: #{item.stockAdult}
                   div TE: #{item.stockChildren}
                   div EB: #{item.stockBaby}
-                td(class="inner-center") #{item.position}
-                td(class="inner-center")
-                  if(item.status == "active")
+                td.inner-center #{item.position}
+                td.inner-center
+                  if (item.status == "active")
                     .badge.badge-green Hoạt động
-                  else if(item.status == "inactive")
+                  else if (item.status == "inactive")
                     .badge.badge-red Tạm dừng
                 td
                   div #{item.createdByAdmin}
@@ -109,19 +111,32 @@ block main
                   div.inner-time #{item.updatedAtFormat}
                 td
                   .inner-buttons
-                    if(permissions.includes("tour-edit"))
-                      a(href=`/${pathAdmin}/tour/edit/${item.id}`
-                        class="inner-edit")
-                      <i class="fa-regular fa-pen-to-square"></i>
-                    if(permissions.includes("tour-delete"))
-                      button(class="inner-delete" button-delete data-api=`/${pathAdmin}/tour/delete/${item.id}`) <i class="fa-regular fa-trash-can"></i>
+                    if (permissions.includes("tour-edit"))
+                      a.inner-edit(href=`/${pathAdmin}/tour/edit/${item.id}`)
+                        i.fa-regular.fa-pen-to-square
+                    if (permissions.includes("tour-delete"))
+                      button.inner-delete(button-delete data-api=`/${pathAdmin}/tour/delete/${item.id}`)
+                        i.fa-regular.fa-trash-can
     //- End Section 6
 
     //- Section 7
     .section-7
-      span(class="inner-label") Hiển thị 1 - 9 của 78
-      select(class="inner-pagination")
-        option Trang 1
-        option Trang 2
-        option Trang 3
+      span.inner-label Hiển thị #{pagination.startItem} - #{pagination.endItem} của #{pagination.totalRecord}
+      .inner-pagination(box-pagination)
+        button.inner-page.inner-page-nav(
+          type="button"
+          data-page=(pagination.currentPage - 1)
+          disabled=(pagination.currentPage <= 1)
+        ) Trước
+        - for (let i = 1; i <= pagination.totalPage; ++i)
+          button.inner-page(
+            type="button"
+            class=(pagination.currentPage === i ? "active" : "")
+            data-page=i
+          ) #{i}
+        button.inner-page.inner-page-nav(
+          type="button"
+          data-page=(pagination.currentPage + 1)
+          disabled=(pagination.currentPage >= pagination.totalPage)
+        ) Sau
     //- End Section 7

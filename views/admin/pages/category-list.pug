@@ -96,8 +96,24 @@ block main
 
   //- Section 7
   .section-7
-    span(class="inner-label") Hiển thị #{pagination.skip + 1}  -#{pagination.skip + categoryList.length} của #{pagination.totalRecord}
-    select(class="inner-pagination" box-pagination)
+    span(class="inner-label") Hiển thị #{pagination.startItem} - #{pagination.endItem} của #{pagination.totalRecord}
+    .inner-pagination(box-pagination)
+      button(
+        type="button"
+        class="inner-page inner-page-nav"
+        data-page=(pagination.currentPage - 1)
+        disabled=(pagination.currentPage <= 1)
+      ) Trước
       - for(let i = 1; i <= pagination.totalPage; ++i)
-        option(value = i) Trang #{i}
+        button(
+          type="button"
+          class=`inner-page ${pagination.currentPage === i ? "active" : ""}`
+          data-page=i
+        ) #{i}
+      button(
+        type="button"
+        class="inner-page inner-page-nav"
+        data-page=(pagination.currentPage + 1)
+        disabled=(pagination.currentPage >= pagination.totalPage)
+      ) Sau
   //- End Section 7

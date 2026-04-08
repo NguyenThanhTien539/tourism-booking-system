@@ -33,17 +33,21 @@ module.exports.list = async (req, res) => {
   }
 
   const limitedItems = 5;
-  let page = 1;
-  if (queries.page && queries.page > 0) {
-    page = parseInt(queries.page);
-  }
-  const skip = (page - 1) * limitedItems;
+  let page = parseInt(queries.page) || 1;
+  if (page < 1) page = 1;
+
   const totalRecord = await Category.countDocuments(find);
-  const totalPage = Math.ceil(totalRecord / limitedItems);
+  const totalPage = Math.max(1, Math.ceil(totalRecord / limitedItems));
+  if (page > totalPage) page = totalPage;
+
+  const skip = (page - 1) * limitedItems;
   const pagination = {
     totalRecord: totalRecord,
     totalPage: totalPage,
     skip: skip,
+    currentPage: page,
+    startItem: totalRecord === 0 ? 0 : skip + 1,
+    endItem: Math.min(skip + limitedItems, totalRecord),
   };
 
   const categoryList = await Category.find(find).limit(limitedItems).skip(skip);
