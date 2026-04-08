@@ -2,6 +2,7 @@ const route = require("express").Router();
 const settingController = require("../../controllers/admin/setting.controller");
 const cloudinaryHelper = require("../../helpers/cloudinary.helper");
 const roleValidate = require("../../validates/admin/role.validate");
+const accountAdminValidate = require("../../validates/admin/account-admin.validate");
 
 const multer = require("multer");
 const upload = multer({ storage: cloudinaryHelper.storage });
@@ -20,6 +21,7 @@ route.patch(
 );
 
 route.get("/account-admin/list", settingController.accountAdminList);
+route.get("/account-admin/trash", settingController.accountAdminTrash);
 
 route.get("/account-admin/create", settingController.accountAdminCreate);
 
@@ -35,6 +37,27 @@ route.post(
   "/account-admin/create",
   upload.single("avatar"),
   settingController.accountAdminCreatePost
+);
+
+route.patch(
+  "/account-admin/delete/:id",
+  accountAdminValidate.idParam,
+  settingController.accountAdminDeletePatch
+);
+route.patch(
+  "/account-admin/undo/:id",
+  accountAdminValidate.idParam,
+  settingController.accountAdminUndoPatch
+);
+route.delete(
+  "/account-admin/destroy/:id",
+  accountAdminValidate.idParam,
+  settingController.accountAdminDestroyDelete
+);
+route.patch(
+  "/account-admin/change-multi",
+  accountAdminValidate.changeMultiPatch,
+  settingController.accountAdminChangeMultiPatch
 );
 
 route.get("/role/list", settingController.roleList);

@@ -436,6 +436,228 @@ module.exports.roleChangeMultiPatch = async (req, res) => {
   }
 };
 
+// Override account admin list with filter + pagination
+module.exports.accountAdminList = async (req, res) => {
+  const queries = req.query;
+  const find = { deleted: false };
+
+  if (queries.status) {
+    find.status = queries.status;
+  }
+
+  if (queries.role) {
+    find.role = queries.role;
+  }
+
+  if (queries.startDate || queries.endDate) {
+    find.createdAt = {};
+    if (queries.startDate) find.createdAt.$gte = new Date(queries.startDate);
+    if (queries.endDate) find.createdAt.$lte = new Date(queries.endDate);
+  }
+
+  if (queries.keyword) {
+    const keywordRegex = new RegExp(queries.keyword, "i");
+    find.$or = [
+      { fullName: keywordRegex },
+      { email: keywordRegex },
+      { phone: keywordRegex },
+      { positionCompany: keywordRegex },
+    ];
+  }
+
+  const limitedItems = 5;
+  let page = parseInt(queries.page) || 1;
+  if (page < 1) page = 1;
+
+  const totalRecord = await AccountAdmin.countDocuments(find);
+  const totalPage = Math.max(1, Math.ceil(totalRecord / limitedItems));
+  if (page > totalPage) page = totalPage;
+
+  const skip = (page - 1) * limitedItems;
+  const pagination = {
+    totalRecord: totalRecord,
+    totalPage: totalPage,
+    skip: skip,
+    currentPage: page,
+    startItem: totalRecord === 0 ? 0 : skip + 1,
+    endItem: Math.min(skip + limitedItems, totalRecord),
+  };
+
+  const accountAdminList = await AccountAdmin.find(find)
+    .limit(limitedItems)
+    .skip(skip);
+  const roleList = await Role.find({ deleted: false });
+
+  const roleMap = {};
+  roleList.forEach((role) => {
+    roleMap[role.id] = role.name;
+  });
+
+  for (const item of accountAdminList) {
+    item.roleName = roleMap[item.role] || "";
+  }
+
+  res.render("admin/pages/setting-account-admin-list-v2.pug", {
+    pageTitle: "Tài khoản quản trị",
+    accountAdminList: accountAdminList,
+    roleList: roleList,
+    pagination: pagination,
+  });
+};
+
+module.exports.accountAdminTrash = async (req, res) => {
+  const queries = req.query;
+  const find = { deleted: true };
+
+  if (queries.status) {
+    find.status = queries.status;
+  }
+
+  if (queries.role) {
+    find.role = queries.role;
+  }
+
+  if (queries.startDate || queries.endDate) {
+    find.createdAt = {};
+    if (queries.startDate) find.createdAt.$gte = new Date(queries.startDate);
+    if (queries.endDate) find.createdAt.$lte = new Date(queries.endDate);
+  }
+
+  if (queries.keyword) {
+    const keywordRegex = new RegExp(queries.keyword, "i");
+    find.$or = [
+      { fullName: keywordRegex },
+      { email: keywordRegex },
+      { phone: keywordRegex },
+      { positionCompany: keywordRegex },
+    ];
+  }
+
+  const limitedItems = 5;
+  let page = parseInt(queries.page) || 1;
+  if (page < 1) page = 1;
+
+  const totalRecord = await AccountAdmin.countDocuments(find);
+  const totalPage = Math.max(1, Math.ceil(totalRecord / limitedItems));
+  if (page > totalPage) page = totalPage;
+
+  const skip = (page - 1) * limitedItems;
+  const pagination = {
+    totalRecord: totalRecord,
+    totalPage: totalPage,
+    skip: skip,
+    currentPage: page,
+    startItem: totalRecord === 0 ? 0 : skip + 1,
+    endItem: Math.min(skip + limitedItems, totalRecord),
+  };
+
+  const accountAdminList = await AccountAdmin.find(find)
+    .limit(limitedItems)
+    .skip(skip);
+  const roleList = await Role.find({ deleted: false });
+
+  const roleMap = {};
+  roleList.forEach((role) => {
+    roleMap[role.id] = role.name;
+  });
+
+  for (const item of accountAdminList) {
+    item.roleName = roleMap[item.role] || "";
+  }
+
+  res.render("admin/pages/setting-account-admin-trash.pug", {
+    pageTitle: "Thùng rác tài khoản quản trị",
+    accountAdminList: accountAdminList,
+    roleList: roleList,
+    pagination: pagination,
+  });
+};
+
+module.exports.accountAdminDeletePatch = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await AccountAdmin.updateOne(
+      { _id: id, deleted: false },
+      { deleted: true, deletedBy: req.account.id, deletedAt: Date.now() },
+    );
+
+    res.json({ code: "success", message: "Xóa tài khoản thành công" });
+  } catch (error) {
+    res.json({ code: "error", message: "Dữ liệu không hợp lệ" });
+  }
+};
+
+module.exports.accountAdminUndoPatch = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await AccountAdmin.updateOne(
+      { _id: id, deleted: true },
+      { deleted: false, deletedBy: "", deletedAt: null },
+    );
+
+    res.json({ code: "success", message: "Khôi phục tài khoản thành công" });
+  } catch (error) {
+    res.json({ code: "error", message: "Dữ liệu không hợp lệ" });
+  }
+};
+
+module.exports.accountAdminDestroyDelete = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await AccountAdmin.deleteOne({ _id: id, deleted: true });
+
+    res.json({ code: "success", message: "Xóa vĩnh viễn thành công" });
+  } catch (error) {
+    res.json({ code: "error", message: "Dữ liệu không hợp lệ" });
+  }
+};
+
+module.exports.accountAdminChangeMultiPatch = async (req, res) => {
+  try {
+    const { option, ids } = req.body;
+
+    switch (option) {
+      case "active":
+        await AccountAdmin.updateMany(
+          { _id: { $in: ids }, deleted: false },
+          { status: "active" },
+        );
+        return res.json({ code: "success", message: "Đã cập nhật thành công" });
+      case "inactive":
+        await AccountAdmin.updateMany(
+          { _id: { $in: ids }, deleted: false },
+          { status: "inactive" },
+        );
+        return res.json({ code: "success", message: "Đã cập nhật thành công" });
+      case "delete":
+        await AccountAdmin.updateMany(
+          { _id: { $in: ids }, deleted: false },
+          { deleted: true, deletedBy: req.account.id, deletedAt: Date.now() },
+        );
+        return res.json({ code: "success", message: "Đã xóa thành công" });
+      case "undo":
+        await AccountAdmin.updateMany(
+          { _id: { $in: ids }, deleted: true },
+          { deleted: false, deletedBy: "", deletedAt: null },
+        );
+        return res.json({
+          code: "success",
+          message: "Đã khôi phục thành công",
+        });
+      case "destroy":
+        await AccountAdmin.deleteMany({ _id: { $in: ids }, deleted: true });
+        return res.json({
+          code: "success",
+          message: "Đã xóa vĩnh viễn thành công",
+        });
+      default:
+        return res.json({ code: "error", message: "Hành động không hợp lệ" });
+    }
+  } catch (error) {
+    return res.json({ code: "error", message: "Dữ liệu không hợp lệ" });
+  }
+};
+
 module.exports.tourSection = async (req, res) => {
   const tourSections = await TourSections.findOne({});
   const categoryList = await Category.find({ deleted: false });

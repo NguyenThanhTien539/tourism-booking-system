@@ -1,0 +1,116 @@
+extends ../layouts/default.pug
+
+block main
+  h1.box-title Tài khoản quản trị
+
+  //- Section 4
+  .section-4
+    .inner-wrap
+      .inner-item.inner-label
+        i.fa-solid.fa-filter
+        | Bộ lọc
+      .inner-item
+        select(filter-status)
+          option(value="") Trạng thái
+          option(value="initial") Khởi tạo
+          option(value="active") Hoạt động
+          option(value="inactive") Tạm dừng
+      .inner-item.inner-date
+        input(type="date" filter-start-date)
+        span -
+        input(type="date" filter-end-date)
+      .inner-item
+        select(filter-role)
+          option(value="") Nhóm quyền
+          each item in roleList
+            option(value=item.id) #{item.name}
+      .inner-item.inner-reset(delete-filter-button)
+        i.fa-solid.fa-rotate-left
+        | Xóa bộ lọc
+  //- End Section 4
+
+  //- Section 5
+  .section-5
+    .inner-wrap
+      .inner-change-status(change-multi data-api=`/${pathAdmin}/setting/account-admin/change-multi`)
+        .inner-item
+          select
+            option(value="") -- Hành động --
+            option(value="active") Hoạt động
+            option(value="inactive") Tạm dừng
+            option(value="delete") Xóa
+        .inner-item
+          button Áp dụng
+      .inner-search
+        i.fa-solid.fa-magnifying-glass
+        input(type="text" placeholder="Tìm kiếm" search)
+      .inner-button-create
+        a(href=`/${pathAdmin}/setting/account-admin/create`) + Tạo mới
+      .inner-button-trash
+        a(href=`/${pathAdmin}/setting/account-admin/trash`) Thùng rác
+  //- End Section 5
+
+  //- Section 6
+  .section-6
+    .table-2
+      table
+        thead
+          tr
+            th.inner-center
+              input.inner-check(type="checkbox" check-all)
+            th Họ tên
+            th.inner-center Ảnh đại diện
+            th Email
+            th Số điện thoại
+            th Nhóm quyền
+            th Chức vụ
+            th Trạng thái
+            th Hành động
+        tbody
+          each item in accountAdminList
+            tr
+              td.inner-center
+                input.inner-check(type="checkbox" check-item=item.id)
+              td #{item.fullName}
+              td.inner-center
+                img.inner-avatar(src=item.avatar)
+              td #{item.email}
+              td #{item.phone}
+              td #{item.roleName}
+              td #{item.positionCompany}
+              td
+                if(item.status == "active")
+                  .badge.badge-green Hoạt động
+                else if(item.status == "inactive")
+                  .badge.badge-red Tạm dừng
+                else
+                  .badge.badge-orange Khởi tạo
+              td
+                .inner-buttons
+                  a.inner-edit(href=`/${pathAdmin}/setting/account-admin/edit/${item.id}`)
+                    i.fa-regular.fa-pen-to-square
+                  button.inner-delete(button-delete data-api=`/${pathAdmin}/setting/account-admin/delete/${item.id}`)
+                    i.fa-regular.fa-trash-can
+  //- End Section 6
+
+  //- Section 7
+  .section-7
+    span.inner-label Hiển thị #{pagination.startItem} - #{pagination.endItem} của #{pagination.totalRecord}
+    .inner-pagination(box-pagination)
+      button.inner-page.inner-page-nav(
+        type="button"
+        data-page=(pagination.currentPage - 1)
+        disabled=(pagination.currentPage <= 1)
+      ) Trước
+      - for (let i = 1; i <= pagination.totalPage; ++i)
+        button.inner-page(
+          type="button"
+          class=(pagination.currentPage === i ? "active" : "")
+          data-page=i
+        ) #{i}
+      button.inner-page.inner-page-nav(
+        type="button"
+        data-page=(pagination.currentPage + 1)
+        disabled=(pagination.currentPage >= pagination.totalPage)
+      ) Sau
+  //- End Section 7

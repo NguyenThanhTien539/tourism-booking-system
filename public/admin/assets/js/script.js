@@ -1398,6 +1398,28 @@ if (filterPriceRange) {
 }
 // End filter price range
 
+// Filter role
+const filterRole = document.querySelector("[filter-role]");
+if (filterRole) {
+  const newURL = new URL(window.location.href);
+
+  filterRole.addEventListener("change", () => {
+    const value = filterRole.value;
+
+    if (value) {
+      newURL.searchParams.set("role", value);
+    } else {
+      newURL.searchParams.delete("role");
+    }
+
+    window.location.href = newURL;
+  });
+
+  const currentValue = newURL.searchParams.get("role");
+  if (currentValue) filterRole.value = currentValue;
+}
+// End filter role
+
 //Delete all filter
 const deleteFilterButton = document.querySelector("[delete-filter-button]");
 if (deleteFilterButton) {
