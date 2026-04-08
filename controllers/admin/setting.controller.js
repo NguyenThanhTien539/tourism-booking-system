@@ -497,7 +497,7 @@ module.exports.accountAdminList = async (req, res) => {
     item.roleName = roleMap[item.role] || "";
   }
 
-  res.render("admin/pages/setting-account-admin-list-v2.pug", {
+  res.render("admin/pages/setting-account-admin-list.pug", {
     pageTitle: "Tài khoản quản trị",
     accountAdminList: accountAdminList,
     roleList: roleList,
