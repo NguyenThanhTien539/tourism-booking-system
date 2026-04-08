@@ -173,11 +173,38 @@ module.exports.accountAdminEditPatch = async (req, res) => {
 };
 
 module.exports.roleList = async (req, res) => {
-  const roleList = await Role.find({ deleted: false });
+  const queries = req.query;
+  const find = { deleted: false };
+
+  if (queries.keyword) {
+    const keywordRegex = new RegExp(queries.keyword, "i");
+    find.$or = [{ name: keywordRegex }, { description: keywordRegex }];
+  }
+
+  const limitedItems = 5;
+  let page = parseInt(queries.page) || 1;
+  if (page < 1) page = 1;
+
+  const totalRecord = await Role.countDocuments(find);
+  const totalPage = Math.max(1, Math.ceil(totalRecord / limitedItems));
+  if (page > totalPage) page = totalPage;
+
+  const skip = (page - 1) * limitedItems;
+  const pagination = {
+    totalRecord: totalRecord,
+    totalPage: totalPage,
+    skip: skip,
+    currentPage: page,
+    startItem: totalRecord === 0 ? 0 : skip + 1,
+    endItem: Math.min(skip + limitedItems, totalRecord),
+  };
+
+  const roleList = await Role.find(find).limit(limitedItems).skip(skip);
 
   res.render("admin/pages/setting-role-list.pug", {
     pageTitle: "Nhóm quyền",
     roleList: roleList,
+    pagination: pagination,
   });
 };
 
@@ -265,7 +292,7 @@ module.exports.roleDeletePatch = async (req, res) => {
 
     await Role.updateOne(
       { _id: id },
-      { deleted: true, deletedBy: req.account.id, deletedAt: Date.now() }
+      { deleted: true, deletedBy: req.account.id, deletedAt: Date.now() },
     );
 
     res.json({
@@ -276,6 +303,135 @@ module.exports.roleDeletePatch = async (req, res) => {
     res.json({
       code: "error",
       message: "Dữ liệu không hợp lệ",
+    });
+  }
+};
+
+module.exports.roleTrash = async (req, res) => {
+  const queries = req.query;
+  const find = { deleted: true };
+
+  if (queries.keyword) {
+    const keywordRegex = new RegExp(queries.keyword, "i");
+    find.$or = [{ name: keywordRegex }, { description: keywordRegex }];
+  }
+
+  const limitedItems = 5;
+  let page = parseInt(queries.page) || 1;
+  if (page < 1) page = 1;
+
+  const totalRecord = await Role.countDocuments(find);
+  const totalPage = Math.max(1, Math.ceil(totalRecord / limitedItems));
+  if (page > totalPage) page = totalPage;
+
+  const skip = (page - 1) * limitedItems;
+  const pagination = {
+    totalRecord: totalRecord,
+    totalPage: totalPage,
+    skip: skip,
+    currentPage: page,
+    startItem: totalRecord === 0 ? 0 : skip + 1,
+    endItem: Math.min(skip + limitedItems, totalRecord),
+  };
+
+  const roleList = await Role.find(find).limit(limitedItems).skip(skip);
+
+  for (const role of roleList) {
+    if (role.deletedBy) {
+      const infoAdmin = await AccountAdmin.findOne({ _id: role.deletedBy });
+      if (infoAdmin) role.deletedByAdmin = infoAdmin.fullName;
+    }
+  }
+
+  res.render("admin/pages/setting-role-trash.pug", {
+    pageTitle: "Thùng rác nhóm quyền",
+    roleList: roleList,
+    pagination: pagination,
+  });
+};
+
+module.exports.roleUndoPatch = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    await Role.updateOne(
+      { _id: id, deleted: true },
+      { deleted: false, deletedBy: "", deletedAt: null },
+    );
+
+    res.json({
+      code: "success",
+      message: "Khôi phục thành công",
+    });
+  } catch (error) {
+    res.json({
+      code: "error",
+      message: "Dữ liệu không hợp lệ",
+    });
+  }
+};
+
+module.exports.roleDestroyDelete = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    await Role.deleteOne({ _id: id, deleted: true });
+
+    res.json({
+      code: "success",
+      message: "Xóa vĩnh viễn thành công",
+    });
+  } catch (error) {
+    res.json({
+      code: "error",
+      message: "Dữ liệu không hợp lệ",
+    });
+  }
+};
+
+module.exports.roleChangeMultiPatch = async (req, res) => {
+  try {
+    const { option, ids } = req.body;
+
+    switch (option) {
+      case "delete":
+        await Role.updateMany(
+          { _id: { $in: ids }, deleted: false },
+          { deleted: true, deletedBy: req.account.id, deletedAt: Date.now() },
+        );
+        res.json({
+          code: "success",
+          message: "Đã xóa thành công",
+        });
+        break;
+      case "undo":
+        await Role.updateMany(
+          { _id: { $in: ids }, deleted: true },
+          { deleted: false, deletedBy: "", deletedAt: null },
+        );
+        res.json({
+          code: "success",
+          message: "Đã khôi phục thành công",
+        });
+        break;
+      case "destroy":
+        await Role.deleteMany({ _id: { $in: ids }, deleted: true });
+        res.json({
+          code: "success",
+          message: "Đã xóa vĩnh viễn thành công",
+        });
+        break;
+      default:
+        res.json({
+          code: "error",
+          message: "Hành động không hợp lệ",
+        });
+        break;
+    }
+  } catch (error) {
+    res.json({
+      code: "error",
+      message: "ID không hợp lệ",
     });
   }
 };

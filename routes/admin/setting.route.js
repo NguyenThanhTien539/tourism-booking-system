@@ -1,7 +1,7 @@
 const route = require("express").Router();
 const settingController = require("../../controllers/admin/setting.controller");
 const cloudinaryHelper = require("../../helpers/cloudinary.helper");
-const settingValidate = require("../../validates/admin/setting.validate");
+const roleValidate = require("../../validates/admin/role.validate");
 
 const multer = require("multer");
 const upload = multer({ storage: cloudinaryHelper.storage });
@@ -38,12 +38,13 @@ route.post(
 );
 
 route.get("/role/list", settingController.roleList);
+route.get("/role/trash", settingController.roleTrash);
 
 route.get("/role/create", settingController.roleCreate);
 
 route.post(
   "/role/create",
-  settingValidate.roleCreatePost,
+  roleValidate.roleBodyPost,
   settingController.roleCreatePost
 );
 
@@ -54,10 +55,14 @@ route.post("/tour/section", settingController.tourSectionPost);
 
 route.patch(
   "/role/edit/:id",
-  settingValidate.roleCreatePost,
+  roleValidate.roleIdParam,
+  roleValidate.roleBodyPost,
   settingController.roleEditPatch
 );
 
-route.patch("/role/delete/:id", settingController.roleDeletePatch);
+route.patch("/role/delete/:id", roleValidate.roleIdParam, settingController.roleDeletePatch);
+route.patch("/role/undo/:id", roleValidate.roleIdParam, settingController.roleUndoPatch);
+route.delete("/role/destroy/:id", roleValidate.roleIdParam, settingController.roleDestroyDelete);
+route.patch("/role/change-multi", roleValidate.roleChangeMultiPatch, settingController.roleChangeMultiPatch);
 
 module.exports = route;
