@@ -1,11 +1,9 @@
 extends ../layouts/default.pug
-include ../mixins/products.pug
 include ../mixins/box-breadcrumb.pug
-
 
 block main
   // Breadcrumb
-  +box_breadcrumb(breadcrumbList)
+  +box_breadcrumb(breadcrumb)
   // End Breadcrumb
 
   // Section 10
@@ -17,46 +15,46 @@ block main
             .inner-images-main
               .swiper.swiper-box-images-main
                 .swiper-wrapper
-                  each image in detailedTour.images
+                  each image in tourDetail.images
                     .swiper-slide
-                        .inner-image
-                          img(
-                            alt=""
-                            src=image
-                            )
+                      .inner-image
+                        img(
+                          alt="" 
+                          src=image
+                          )
             .inner-images-thumb
               .swiper.swiper-box-images-thumb
                 .swiper-wrapper
-                  each image in detailedTour.images
+                  each image in tourDetail.images
                     .swiper-slide
-                        .inner-image
-                          img(
-                            alt=""
-                            src=image
-                            )
+                      .inner-image
+                        img(
+                          alt="" 
+                          src=image
+                          )
           .box-tour-info
             .inner-title Thông Tin Tour
-            .inner-content !{detailedTour.information}
+            .inner-content !{tourDetail.information}
             .inner-read-more
               button.button-outline Xem tất cả
           .box-tour-schedule
             .inner-title-main Lịch Trình Tour
             .inner-list
-              .inner-item
-                each item in detailedTour.schedules
-                  .inner-title !{item.title}
+              each item in tourDetail.schedules
+                .inner-item
+                  .inner-title #{item.title}
                   .inner-content !{item.description}
         .inner-right
-          .box-tour-detail  
+          .box-tour-detail
             .inner-title-main Chuyến Đi Của Bạn
             .inner-product
               .inner-image
                 img(
                   alt="" 
-                  src=detailedTour.avatar
+                  src=tourDetail.avatar
                   )
               .inner-info
-                .inner-title #{detailedTour.name}
+                .inner-title #{tourDetail.name}
                 .inner-rating
                   .inner-stars
                     i.fa-solid.fa-star
@@ -67,25 +65,21 @@ block main
                   .inner-number 500 lượt đánh giá
             .inner-meta
               .inner-item
-                i.fa-solid.fa-ticket-simple
-                span Mã Tour:
-                span.inner-highlight 28T00001
-              .inner-item
                 i.fa-solid.fa-calendar-days
                 span Thời Gian:
-                span.inner-highlight #{detailedTour.time}
+                span.inner-highlight #{tourDetail.time}
               .inner-item
                 i.fa-solid.fa-truck-plane
                 span Phương Tiện:
-                span.inner-highlight #{detailedTour.vehicle}
+                span.inner-highlight #{tourDetail.vehicle}
               .inner-item
                 i.fa-solid.fa-calendar-days
                 span Ngày Khởi Hành:
-                span.inner-highlight #{detailedTour.formatDepartureDate}
+                span.inner-highlight #{tourDetail.departureDateFormat}
             .inner-form
               label.inner-label Khởi Hành Tại:
               select(name="locationFrom")
-                each item in locationNameList
+                each item in tourDetail.locationsDetail
                   option(value=item.id) #{item.name}
             .inner-quantity
               label.inner-label Số Lượng Hành Khách
@@ -94,54 +88,54 @@ block main
                   .inner-item-label Người lớn:
                   .inner-item-input
                     input(
-                      value="0" 
+                      value="1" 
                       min="0" 
-                      max=detailedTour.stockAdult
+                      max=tourDetail.stockAdult
                       type="number"
                       input-quantity="stockAdult"
-                      data-price=detailedTour.priceNewAdult
+                      data-price=tourDetail.priceNewAdult
                       )
                   .inner-item-price
-                    span(label-quantity="stockAdult") 0
+                    span(label-quantity="stockAdult") 1
                     span x
-                    span.inner-highlight #{detailedTour.priceNewAdult.toLocaleString("vi-VN")}
+                    span.inner-highlight #{tourDetail.priceNewAdult.toLocaleString("vi-VN")}
                 .inner-item
                   .inner-item-label Trẻ em:
                   .inner-item-input
                     input(
                       value="0" 
                       min="0" 
-                      max=detailedTour.stockChildren
+                      max=tourDetail.stockChildren
                       type="number"
                       input-quantity="stockChildren"
-                      data-price=detailedTour.priceNewChildren
+                      data-price=tourDetail.priceNewChildren
                       )
                   .inner-item-price
                     span(label-quantity="stockChildren") 0
                     span x
-                    span.inner-highlight #{detailedTour.priceNewChildren.toLocaleString("vi-VN")}
+                    span.inner-highlight #{tourDetail.priceNewChildren.toLocaleString("vi-VN")}
                 .inner-item
                   .inner-item-label Em bé:
                   .inner-item-input
                     input(
                       value="0" 
                       min="0" 
-                      max=detailedTour.stockBaby
+                      max=tourDetail.stockBaby
                       type="number"
                       input-quantity="stockBaby"
-                      data-price=detailedTour.priceNewBaby
+                      data-price=tourDetail.priceNewBaby
                       )
                   .inner-item-price
                     span(label-quantity="stockBaby") 0
                     span x
-                    span.inner-highlight #{detailedTour.priceNewBaby.toLocaleString("vi-VN")}
+                    span.inner-highlight #{tourDetail.priceNewBaby.toLocaleString("vi-VN")}
             .inner-total
               .inner-total-label Tổng cộng:
               .inner-total-price
-                span(total-price) 0
+                span(totalPrice) #{tourDetail.priceNewAdult.toLocaleString("vi-VN")}
                 span đ
             button.inner-button-add-cart(
               button-add-cart
-              tour-id=detailedTour.id
+              tour-id=tourDetail.id
               ) Thêm Vào Giỏ Hàng
   // End Section 10

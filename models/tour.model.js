@@ -31,7 +31,6 @@ const schema = new mongoose.Schema(
       type: String,
       slug: "name",
       unique: true,
-      slugPaddingSize: 4,
     },
     deleted: {
       type: Boolean,
@@ -42,8 +41,7 @@ const schema = new mongoose.Schema(
   },
   {
     timestamps: true, // ✅ đặt ở đây mới đúng
-  }
+  },
 );
 
 module.exports.Tour = mongoose.model("Tour", schema, "tours");
-

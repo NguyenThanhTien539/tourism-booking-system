@@ -6,58 +6,56 @@ const moment = require("moment");
 module.exports.detail = async (req, res) => {
   const slug = req.params.slug;
 
-  const detailedTour = await Tour.findOne({
+  const tourDetail = await Tour.findOne({
+    slug: slug,
     deleted: false,
     status: "active",
-    slug: slug,
   });
 
-  const getBreadcrumbList = async (parentId, count = 3) => {
-    if (!parentId || count >= 3) return [];
+  if (!tourDetail) {
+    res.redirect("/");
+    return;
+  }
 
-    const detailedCategory = await Category.findOne({
-      _id: parentId,
+  const breadcrumb = [];
+
+  if (tourDetail.category) {
+    const category = await Category.findOne({
+      _id: tourDetail.category,
       deleted: false,
       status: "active",
     });
 
-    if (!detailedCategory) return [];
+    if (category) {
+      breadcrumb.push({
+        name: category.name,
+        slug: category.slug,
+        avatar: category.avatar,
+      });
+    }
+  }
 
-    const breadcrumbList = await getBreadcrumbList(
-      detailedCategory.parent,
-      count + 1
+  breadcrumb.push({
+    name: tourDetail.name,
+    slug: tourDetail.slug,
+    avatar: tourDetail.avatar,
+  });
+
+  if (tourDetail.departureDate) {
+    tourDetail.departureDateFormat = moment(tourDetail.departureDate).format(
+      "DD/MM/YYYY",
     );
+  }
 
-    breadcrumbList.push({
-      name: detailedCategory.name,
-      slug: detailedCategory.slug,
+  if (tourDetail.locations) {
+    tourDetail.locationsDetail = await City.find({
+      _id: { $in: tourDetail.locations },
     });
-
-    return breadcrumbList;
-  };
-
-  const breadcrumbList = await getBreadcrumbList(detailedTour.category, 0);
-  breadcrumbList.push({
-    name: detailedTour.name,
-    slug: detailedTour.slug,
-    avatar: detailedTour.avatar,
-  });
-
-  const locationNameList = await City.find({
-    _id: { $in: detailedTour.locations },
-  });
-
-  if (detailedTour.departureDate) {
-    const formatDepartureDate = moment(detailedTour.departureDate).format(
-      "DD/MM/YYYY"
-    );
-    detailedTour.formatDepartureDate = formatDepartureDate;
   }
 
   res.render("client/page/tour-detail.pug", {
-    pageTitle: "Chi tiết tour",
-    breadcrumbList: breadcrumbList,
-    detailedTour: detailedTour,
-    locationNameList: locationNameList,
+    pageTitle: tourDetail.name,
+    breadcrumb: breadcrumb,
+    tourDetail: tourDetail,
   });
 };

@@ -7,7 +7,10 @@ block main
     //- Section 5
     .section-5
       .inner-wrap
-        .inner-change-status(change-multi data-api=`/${pathAdmin}/tour/change-multi`)
+        .inner-change-status(
+          change-multi
+          data-api=`/${pathAdmin}/tour/change-multi`
+        )
           .inner-item
             select
               option(value="") -- Hành động --
@@ -46,29 +49,37 @@ block main
                 td
                   img(src=item.avatar class="inner-avatar")
                 td
-                  div NL: #{item.priceAdult.toLocaleString("vi-VN")}đ
-                  div TE: #{item.priceChildren.toLocaleString("vi-VN")}đ
-                  div EB: #{item.priceBaby.toLocaleString("vi-VN")}đ
+                  div NL: #{item.priceNewAdult.toLocaleString("vi-VN")}đ
+                  div TE: #{item.priceNewChildren.toLocaleString("vi-VN")}đ
+                  div EB: #{item.priceNewBaby.toLocaleString("vi-VN")}đ
                 td
                   div NL: #{item.stockAdult}
                   div TE: #{item.stockChildren}
                   div EB: #{item.stockBaby}
                 td(class="inner-center") #{item.position}
                 td(class="inner-center")
-                  if(item.status == "active")
+                  if (item.status == "active")
                     .badge.badge-green Hoạt động
-                  else if(item.status == "inactive")
+                  else if (item.status == "inactive")
                     .badge.badge-red Tạm dừng
                 td
-                  div #{item.createdByAdmin}
+                  div #{item.createdByFullName}
                   div.inner-time #{item.createdAtFormat}
                 td
-                  div #{item.deletedByAdmin}
+                  div #{item.deletedByFullName}
                   div.inner-time #{item.deletedAtFormat}
                 td
                   .inner-buttons
-                    button(class="inner-undo" button-undo data-api=`/${pathAdmin}/tour/undo/${item.id}`) <i class="fa-solid fa-rotate-left"></i>
-                    button(class="inner-delete" button-destroy data-api=`/${pathAdmin}/tour/destroy/${item.id}`) <i class="fa-regular fa-trash-can"></i>
+                    button(
+                      class="inner-undo"
+                      button-undo
+                      data-api=`/${pathAdmin}/tour/undo/${item.id}`
+                      ) <i class="fa-solid fa-rotate-left"></i>
+                    button(
+                      class="inner-delete"
+                      button-destroy
+                      data-api=`/${pathAdmin}/tour/destroy/${item.id}`
+                      ) <i class="fa-regular fa-trash-can"></i>
     //- End Section 6
 
     //- Section 7

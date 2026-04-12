@@ -9,45 +9,47 @@ module.exports.cart = (req, res) => {
 
 module.exports.detail = async (req, res) => {
   try {
-    const cartList = req.body;
-    let detailedCartList = [];
+    const cart = req.body;
+    const cartDetail = [];
 
-    for (const item of cartList) {
-      const detailedTour = await Tour.findOne({
+    for (const item of cart) {
+      const tourInfo = await Tour.findOne({
         _id: item.tourId,
         status: "active",
         deleted: false,
       });
 
-      const detailedCity = await City.findOne({
-        _id: item.locationFrom,
-      });
+      if (tourInfo) {
+        const cityInfo = await City.findOne({
+          _id: item.locationFrom,
+        });
 
-      detailedCartList.push({
-        tourId: item.tourId,
-        locationFrom: item.locationFrom,
-        quantityAdult: item.stockAdult,
-        quantityChildren: item.stockChildren,
-        quantityBaby: item.stockBaby,
-        avatar: detailedTour.avatar,
-        name: detailedTour.name,
-        departureDate: moment(detailedTour.departureDate).format("DD/MM/YYYY"),
-        cityName: detailedCity.name,
-        stockAdult: detailedTour.stockAdult,
-        stockChildren: detailedTour.stockChildren,
-        stockBaby: detailedTour.stockBaby,
-        priceNewAdult: detailedTour.priceNewAdult,
-        priceNewChildren: detailedTour.priceNewChildren,
-        priceNewBaby: detailedTour.priceNewBaby,
-        slug: detailedTour.slug,
-      });
+        cartDetail.push({
+          tourId: item.tourId,
+          locationFrom: item.locationFrom,
+          quantityAdult: item.quantityAdult,
+          quantityChildren: item.quantityChildren,
+          quantityBaby: item.quantityBaby,
+          checked: item.checked,
+          avatar: tourInfo.avatar,
+          name: tourInfo.name,
+          departureDate: moment(tourInfo.departureDate).format("DD/MM/YYYY"),
+          cityName: cityInfo ? cityInfo.name : "",
+          stockAdult: tourInfo.stockAdult,
+          stockChildren: tourInfo.stockChildren,
+          stockBaby: tourInfo.stockBaby,
+          priceNewAdult: tourInfo.priceNewAdult,
+          priceNewChildren: tourInfo.priceNewChildren,
+          priceNewBaby: tourInfo.priceNewBaby,
+          slug: tourInfo.slug,
+        });
+      }
     }
 
-    console.log(detailedCartList);
     res.json({
       code: "success",
-      message: "Thành công",
-      cart: detailedCartList,
+      message: "Thành công!",
+      cart: cartDetail,
     });
   } catch (error) {
     res.json({

@@ -20,7 +20,7 @@ route.patch(
     { name: "images", maxCount: 10 },
   ]),
   tourValidate.createPost,
-  tourController.editPatch
+  tourController.editPatch,
 );
 
 route.patch("/delete/:id", tourController.deletePatch);
@@ -29,7 +29,7 @@ route.patch("/undo/:id", tourController.undoPatch);
 
 route.delete("/destroy/:id", tourController.destroyDelete);
 
-route.patch("/change-multi/", tourController.changeMultiPatch);
+route.patch("/change-multi", tourController.changeMultiPatch);
 
 route.post(
   "/create",
@@ -38,6 +38,6 @@ route.post(
     { name: "images", maxCount: 10 },
   ]),
   tourValidate.createPost,
-  tourController.createPost
+  tourController.createPost,
 );
 module.exports = route;
