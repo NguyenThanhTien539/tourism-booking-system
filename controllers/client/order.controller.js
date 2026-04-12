@@ -1,8 +1,11 @@
 const moment = require("moment");
 const axios = require("axios");
 const CryptoJS = require("crypto-js");
+const crypto = require("crypto");
+const qs = require("qs");
 
 const { generateRandomNumber } = require("../../helpers/generate.helper");
+const { sortObject } = require("../../helpers/sort.helper");
 const { Order } = require("../../models/order.model");
 const { Tour } = require("../../models/tour.model");
 const { City } = require("../../models/cities.model");
@@ -274,4 +277,139 @@ module.exports.paymentZaloPayResultPost = async (req, res) => {
   }
 
   res.json(result);
+};
+
+module.exports.paymentVNPay = async (req, res) => {
+  try {
+    const { orderCode, phone } = req.query;
+
+    const orderDetail = await Order.findOne({
+      code: orderCode,
+      phone: phone,
+    });
+
+    if (!orderDetail) {
+      res.redirect("/");
+      return;
+    }
+
+    const websiteDomain = normalizeBaseUrl(process.env.WEBSITE_DOMAIN);
+    const tmnCode = process.env.VNPAY_TMNCODE;
+    const secretKey = process.env.VNPAY_SECRET_KEY;
+    const vnpUrlConfig = (process.env.VNPAY_URL || "").trim();
+
+    if (!websiteDomain || !tmnCode || !secretKey || !vnpUrlConfig) {
+      res.json({
+        code: "error",
+        message: "Cấu hình thanh toán VNPay chưa đầy đủ!",
+      });
+      return;
+    }
+
+    const date = new Date();
+    const createDate = moment(date).utcOffset(7).format("YYYYMMDDHHmmss");
+
+    const ipAddr =
+      req.headers["x-forwarded-for"] ||
+      req.connection.remoteAddress ||
+      req.socket.remoteAddress ||
+      req.connection.socket?.remoteAddress ||
+      "127.0.0.1";
+
+    let vnpUrl = vnpUrlConfig;
+    const returnUrl = `${websiteDomain}/order/payment-vnpay-result`;
+    const orderId = `${phone}-${orderCode}-${Date.now()}`;
+    const amount = orderDetail.total;
+    const bankCode = "";
+    const locale = "vn";
+    const currCode = "VND";
+
+    let vnp_Params = {};
+    vnp_Params.vnp_Version = "2.1.0";
+    vnp_Params.vnp_Command = "pay";
+    vnp_Params.vnp_TmnCode = tmnCode;
+    vnp_Params.vnp_Locale = locale;
+    vnp_Params.vnp_CurrCode = currCode;
+    vnp_Params.vnp_TxnRef = orderId;
+    vnp_Params.vnp_OrderInfo = `Thanh toan cho ma GD:${orderId}`;
+    vnp_Params.vnp_OrderType = "other";
+    vnp_Params.vnp_Amount = amount * 100;
+    vnp_Params.vnp_ReturnUrl = returnUrl;
+    vnp_Params.vnp_IpAddr = ipAddr;
+    vnp_Params.vnp_CreateDate = createDate;
+    if (bankCode) {
+      vnp_Params.vnp_BankCode = bankCode;
+    }
+
+    vnp_Params = sortObject(vnp_Params);
+
+    const signData = qs.stringify(vnp_Params, { encode: false });
+    const hmac = crypto.createHmac("sha512", secretKey);
+    const signed = hmac.update(Buffer.from(signData, "utf-8")).digest("hex");
+    vnp_Params.vnp_SecureHash = signed;
+    vnpUrl += `?${qs.stringify(vnp_Params, { encode: false })}`;
+
+    res.redirect(vnpUrl);
+  } catch (error) {
+    console.log(error);
+    res.redirect("/");
+  }
+};
+
+module.exports.paymentVNPayResult = async (req, res) => {
+  try {
+    let vnp_Params = req.query;
+    const secureHash = vnp_Params.vnp_SecureHash;
+
+    delete vnp_Params.vnp_SecureHash;
+    delete vnp_Params.vnp_SecureHashType;
+
+    vnp_Params = sortObject(vnp_Params);
+
+    const secretKey = process.env.VNPAY_SECRET_KEY;
+    const websiteDomain = normalizeBaseUrl(process.env.WEBSITE_DOMAIN);
+
+    if (!secretKey || !websiteDomain) {
+      res.redirect("/");
+      return;
+    }
+
+    const signData = qs.stringify(vnp_Params, { encode: false });
+    const hmac = crypto.createHmac("sha512", secretKey);
+    const signed = hmac.update(Buffer.from(signData, "utf-8")).digest("hex");
+
+    if (secureHash === signed) {
+      if (
+        vnp_Params.vnp_TransactionStatus == "00" &&
+        vnp_Params.vnp_ResponseCode == "00"
+      ) {
+        const [phone, orderCode] = (vnp_Params.vnp_TxnRef || "").split("-");
+
+        if (!phone || !orderCode) {
+          res.redirect("/");
+          return;
+        }
+
+        await Order.updateOne(
+          {
+            phone: phone,
+            code: orderCode,
+          },
+          {
+            paymentStatus: "paid",
+          },
+        );
+
+        res.redirect(
+          `${websiteDomain}/order/success?orderCode=${orderCode}&phone=${phone}`,
+        );
+        return;
+      }
+    }
+
+    res.redirect("/");
+  } catch (error) {
+    console.log(error);
+    res.redirect("/");
+  }
 };

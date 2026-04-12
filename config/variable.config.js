@@ -60,6 +60,10 @@ module.exports.paymentMethodList = [
     label: "ZaloPay",
     value: "zalopay",
   },
+  {
+    label: "VNPay",
+    value: "vnpay",
+  },
 ];
 
 module.exports.paymentStatusList = [
