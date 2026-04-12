@@ -3,4 +3,6 @@ const dashboardController = require("../../controllers/admin/dashboard.controlle
 
 route.get("/", dashboardController.dashboard);
 
+route.post("/revenue-chart", dashboardController.revenueChartPost);
+
 module.exports = route;
