@@ -1439,6 +1439,50 @@ if (filterRole) {
 }
 // End filter role
 
+// Filter payment method
+const filterPaymentMethod = document.querySelector("[filter-payment-method]");
+if (filterPaymentMethod) {
+  const newURL = new URL(window.location.href);
+
+  filterPaymentMethod.addEventListener("change", () => {
+    const value = filterPaymentMethod.value;
+
+    if (value) {
+      newURL.searchParams.set("paymentMethod", value);
+    } else {
+      newURL.searchParams.delete("paymentMethod");
+    }
+
+    window.location.href = newURL;
+  });
+
+  const currentValue = newURL.searchParams.get("paymentMethod");
+  if (currentValue) filterPaymentMethod.value = currentValue;
+}
+// End filter payment method
+
+// Filter payment status
+const filterPaymentStatus = document.querySelector("[filter-payment-status]");
+if (filterPaymentStatus) {
+  const newURL = new URL(window.location.href);
+
+  filterPaymentStatus.addEventListener("change", () => {
+    const value = filterPaymentStatus.value;
+
+    if (value) {
+      newURL.searchParams.set("paymentStatus", value);
+    } else {
+      newURL.searchParams.delete("paymentStatus");
+    }
+
+    window.location.href = newURL;
+  });
+
+  const currentValue = newURL.searchParams.get("paymentStatus");
+  if (currentValue) filterPaymentStatus.value = currentValue;
+}
+// End filter payment status
+
 //Delete all filter
 const deleteFilterButton = document.querySelector("[delete-filter-button]");
 if (deleteFilterButton) {

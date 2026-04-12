@@ -9,13 +9,67 @@ const {
 const moment = require("moment");
 
 module.exports.list = async (req, res) => {
+  const queries = req.query;
   const find = {
     deleted: false,
   };
 
-  const orderList = await Order.find(find).sort({
-    createdAt: "desc",
-  });
+  if (queries.status) {
+    find.status = queries.status;
+  }
+
+  if (queries.paymentMethod) {
+    find.paymentMethod = queries.paymentMethod;
+  }
+
+  if (queries.paymentStatus) {
+    find.paymentStatus = queries.paymentStatus;
+  }
+
+  if (queries.startDate || queries.endDate) {
+    find.createdAt = {};
+    if (queries.startDate) {
+      find.createdAt.$gte = moment(queries.startDate).startOf("day").toDate();
+    }
+    if (queries.endDate) {
+      find.createdAt.$lte = moment(queries.endDate).endOf("day").toDate();
+    }
+  }
+
+  if (queries.keyword) {
+    const keywordRegex = new RegExp(queries.keyword, "i");
+    find.$or = [
+      { code: keywordRegex },
+      { fullName: keywordRegex },
+      { phone: keywordRegex },
+      { note: keywordRegex },
+    ];
+  }
+
+  const limitedItems = 5;
+  let page = parseInt(queries.page) || 1;
+  if (page < 1) page = 1;
+
+  const totalRecord = await Order.countDocuments(find);
+  const totalPage = Math.max(1, Math.ceil(totalRecord / limitedItems));
+  if (page > totalPage) page = totalPage;
+
+  const skip = (page - 1) * limitedItems;
+  const pagination = {
+    totalRecord: totalRecord,
+    totalPage: totalPage,
+    skip: skip,
+    currentPage: page,
+    startItem: totalRecord === 0 ? 0 : skip + 1,
+    endItem: Math.min(skip + limitedItems, totalRecord),
+  };
+
+  const orderList = await Order.find(find)
+    .sort({
+      createdAt: "desc",
+    })
+    .limit(limitedItems)
+    .skip(skip);
 
   for (const orderDetail of orderList) {
     const paymentMethodInfo = paymentMethodList.find(
@@ -58,6 +112,10 @@ module.exports.list = async (req, res) => {
   res.render("admin/pages/order-list.pug", {
     pageTitle: "Quản lý đơn hàng",
     orderList: orderList,
+    paymentMethodList: paymentMethodList,
+    paymentStatusList: paymentStatusList,
+    statusList: statusList,
+    pagination: pagination,
   });
 };
 
