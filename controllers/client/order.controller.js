@@ -296,7 +296,7 @@ module.exports.paymentVNPay = async (req, res) => {
     const websiteDomain = normalizeBaseUrl(process.env.WEBSITE_DOMAIN);
     const tmnCode = process.env.VNPAY_TMNCODE;
     const secretKey = process.env.VNPAY_SECRET_KEY;
-    const vnpUrlConfig = (process.env.VNPAY_URL || "").trim();
+    const vnpUrlConfig = process.env.VNPAY_URL;
 
     if (!websiteDomain || !tmnCode || !secretKey || !vnpUrlConfig) {
       res.json({
