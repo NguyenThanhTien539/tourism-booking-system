@@ -1,7 +1,8 @@
 const route = require("express").Router();
 const orderController = require("../../controllers/client/order.controller");
+const orderValidate = require("../../validates/client/order.validate");
 
-route.post("/create", orderController.createPost);
+route.post("/create", orderValidate.createPost, orderController.createPost);
 
 route.get("/success", orderController.success);
 
