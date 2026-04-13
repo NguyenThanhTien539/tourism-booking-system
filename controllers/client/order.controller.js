@@ -316,11 +316,14 @@ module.exports.paymentVNPay = async (req, res) => {
       req.connection.remoteAddress ||
       "127.0.0.1";
 
-    const ipAddr = String(rawIp)
+    let ipAddr = String(rawIp)
       .split(",")[0]
       .trim()
       .replace(/^::ffff:/, "");
 
+    if (ipAddr === "::1") {
+      ipAddr = "127.0.0.1";
+    }
     const returnUrl = `${websiteDomain}/order/payment-vnpay-result`;
 
     // TxnRef chỉ giữ ký tự chữ+số
