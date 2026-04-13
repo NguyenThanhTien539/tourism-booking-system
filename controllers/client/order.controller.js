@@ -289,8 +289,7 @@ module.exports.paymentVNPay = async (req, res) => {
     });
 
     if (!orderDetail) {
-      res.redirect("/");
-      return;
+      return res.redirect("/");
     }
 
     const websiteDomain = normalizeBaseUrl(process.env.WEBSITE_DOMAIN);
@@ -299,60 +298,70 @@ module.exports.paymentVNPay = async (req, res) => {
     const vnpUrlConfig = process.env.VNPAY_URL;
 
     if (!websiteDomain || !tmnCode || !secretKey || !vnpUrlConfig) {
-      res.json({
+      return res.json({
         code: "error",
         message: "Cấu hình thanh toán VNPay chưa đầy đủ!",
       });
-      return;
     }
 
-    const date = new Date();
-    const createDate = moment(date).utcOffset(7).format("YYYYMMDDHHmmss");
+    const createDate = moment().utcOffset(7).format("YYYYMMDDHHmmss");
+    const expireDate = moment()
+      .utcOffset(7)
+      .add(15, "minutes")
+      .format("YYYYMMDDHHmmss");
 
-    const ipAddr =
+    const rawIp =
       req.headers["x-forwarded-for"] ||
-      req.connection.remoteAddress ||
       req.socket.remoteAddress ||
-      req.connection.socket?.remoteAddress ||
+      req.connection.remoteAddress ||
       "127.0.0.1";
 
-    let vnpUrl = vnpUrlConfig;
-    const returnUrl = `${websiteDomain}/order/payment-vnpay-result`;
-    const orderId = `${phone}-${orderCode}-${Date.now()}`;
-    const amount = orderDetail.total;
-    const bankCode = "";
-    const locale = "vn";
-    const currCode = "VND";
+    const ipAddr = String(rawIp)
+      .split(",")[0]
+      .trim()
+      .replace(/^::ffff:/, "");
 
-    let vnp_Params = {};
-    vnp_Params.vnp_Version = "2.1.0";
-    vnp_Params.vnp_Command = "pay";
-    vnp_Params.vnp_TmnCode = tmnCode;
-    vnp_Params.vnp_Locale = locale;
-    vnp_Params.vnp_CurrCode = currCode;
-    vnp_Params.vnp_TxnRef = orderId;
-    vnp_Params.vnp_OrderInfo = `Thanh toan cho ma GD:${orderId}`;
-    vnp_Params.vnp_OrderType = "other";
-    vnp_Params.vnp_Amount = amount * 100;
-    vnp_Params.vnp_ReturnUrl = returnUrl;
-    vnp_Params.vnp_IpAddr = ipAddr;
-    vnp_Params.vnp_CreateDate = createDate;
-    if (bankCode) {
-      vnp_Params.vnp_BankCode = bankCode;
-    }
+    const returnUrl = `${websiteDomain}/order/payment-vnpay-result`;
+
+    // TxnRef chỉ giữ ký tự chữ+số
+    const safeOrderCode = String(orderCode || "").replace(/[^A-Za-z0-9]/g, "");
+    const safePhone = String(phone || "").replace(/[^A-Za-z0-9]/g, "");
+    const orderId = `${safePhone}${safeOrderCode}${Date.now()}`.slice(0, 100);
+
+    const amount = Number(orderDetail.total);
+
+    let vnp_Params = {
+      vnp_Version: "2.1.0",
+      vnp_Command: "pay",
+      vnp_TmnCode: tmnCode,
+      vnp_Locale: "vn",
+      vnp_CurrCode: "VND",
+      vnp_TxnRef: orderId,
+      vnp_OrderInfo: `Thanh toan don hang ${safeOrderCode || orderId}`,
+      vnp_OrderType: "other",
+      vnp_Amount: amount * 100,
+      vnp_ReturnUrl: returnUrl,
+      vnp_IpAddr: ipAddr,
+      vnp_CreateDate: createDate,
+      vnp_ExpireDate: expireDate,
+    };
 
     vnp_Params = sortObject(vnp_Params);
 
     const signData = qs.stringify(vnp_Params, { encode: false });
-    const hmac = crypto.createHmac("sha512", secretKey);
-    const signed = hmac.update(Buffer.from(signData, "utf-8")).digest("hex");
-    vnp_Params.vnp_SecureHash = signed;
-    vnpUrl += `?${qs.stringify(vnp_Params, { encode: false })}`;
+    const signed = crypto
+      .createHmac("sha512", secretKey)
+      .update(Buffer.from(signData, "utf-8"))
+      .digest("hex");
 
-    res.redirect(vnpUrl);
+    vnp_Params.vnp_SecureHash = signed;
+
+    const vnpUrl = `${vnpUrlConfig}?${qs.stringify(vnp_Params, { encode: false })}`;
+
+    return res.redirect(vnpUrl);
   } catch (error) {
     console.log(error);
-    res.redirect("/");
+    return res.redirect("/");
   }
 };
 
